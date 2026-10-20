@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pedro · O Contador da Harvest</title>
+<meta name="description" content="Pedro · O Contador da Harvest: controle de adiantamentos, despesas e prestação de contas do projeto Harvest.">
+<meta name="theme-color" content="#0B3B2E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pedro Harvest">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<style>
+:root{--bg:#F2F6F3;--card:#fff;--card2:#F6FAF7;--ink:#13261E;--muted:#5D7268;--line:#E0EAE4;--inp:#fff;--chip:#E9F3EE;--pri:#0F8A5F;--pri2:#17A673;--gold:#E0A526;--red:#D15C66;--amber:#E08A1E;--blue:#2F6FD6;--mint:#E2F5EC;--shadow:0 1px 2px rgba(19,38,30,.04),0 10px 28px rgba(19,38,30,.07);--side:linear-gradient(180deg,#0C3A2C,#082419);--hero:linear-gradient(125deg,#0B5E43 0%,#0F8A5F 55%,#3DBE88 125%)}
+body.dark{--bg:#07150F;--card:#0F2219;--card2:#13291F;--ink:#E5F1EA;--muted:#93ADA0;--line:#1E3A2D;--inp:#0B1C14;--chip:#173326;--mint:#123A2A;--shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px rgba(0,0,0,.3);--side:linear-gradient(180deg,#092A1F,#04120C);--hero:linear-gradient(125deg,#08432F,#0B6B49 60%,#139267 130%)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,"Segoe UI",ui-sans-serif,system-ui,-apple-system,sans-serif;transition:background .25s,color .25s}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(15,138,95,.35);outline-offset:2px}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:252px;flex:none;background:var(--side);color:#D6E8DE;padding:24px 16px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh}
+.brand{padding:0 6px;display:flex;align-items:center;gap:12px}.brand img{width:46px;height:46px;border-radius:13px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.brand strong{display:block;font-size:20px;color:#fff;letter-spacing:-.5px;line-height:1.05}.brand small{display:block;color:#F2C24E;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.nav{display:grid;gap:3px}.nav button{border:0;background:transparent;color:#AFC9BB;text-align:left;padding:11px 14px;border-radius:12px;font-weight:650;display:flex;align-items:center;gap:10px;transition:.15s}
+.nav .ico{width:22px;text-align:center;font-size:16px}.nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav button.active{background:#fff;color:#0B5E43;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+.sidebottom{margin-top:auto;display:grid;gap:10px}
+.who{background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px;font-size:12px;color:#AFC9BB}.who b{display:block;color:#fff;font-size:13.5px}
+.themebox{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px;font-size:13px;color:#DCEBE3}
+.sw{width:42px;height:24px;border-radius:20px;background:rgba(255,255,255,.25);border:0;position:relative;transition:.2s;flex:none}.sw:after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+body.dark .sw{background:var(--pri2)}body.dark .sw:after{left:21px}
+.main{flex:1;min-width:0;padding:26px clamp(16px,3vw,44px) 70px;max-width:1400px;margin:auto;width:100%}
+.mtop{display:none}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:20px;flex-wrap:wrap}
+.eyebrow{color:var(--pri);font-size:11px;letter-spacing:.16em;font-weight:800;text-transform:uppercase}
+h1{font-size:clamp(24px,3vw,32px);line-height:1.12;letter-spacing:-1px;margin:4px 0}h2{font-size:16px;letter-spacing:-.3px;margin:0}h3{font-size:14px;margin:0}
+.sub{color:var(--muted);margin:0}
+.actions,.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 15px;font-weight:700;white-space:nowrap;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:var(--pri);transform:translateY(-1px)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.primary{background:linear-gradient(135deg,#17A673,#0B6E4A);color:#fff;border:0;box-shadow:0 6px 18px rgba(15,138,95,.3)}
+.btn.gold{background:linear-gradient(135deg,#F2C24E,#D99A1C);color:#3A2800;border:0}
+.btn.danger{color:var(--red)}.btn.small{padding:6px 10px;font-size:12px;border-radius:9px}
+.btn.light{background:#fff;color:#0B5E43;border:0}.btn.glass{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.btn.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.field{display:grid;gap:6px;align-content:start}.field label{font-size:12px;font-weight:750;color:var(--muted)}
+.field input,.field select,.field textarea,.filters select,.filters input{background:var(--inp);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--ink);min-width:0;outline:none;transition:.15s;width:100%}
+.field textarea{resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus,.filters input:focus,.filters select:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(15,138,95,.15)}
+.field input[readonly]{background:var(--chip);font-weight:700}
+label.chk{display:flex!important;align-items:center;gap:8px;font-size:13px!important;color:var(--ink)!important;font-weight:600!important;cursor:pointer}
+label.chk input{width:18px;height:18px;accent-color:var(--pri)}
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;align-items:center}.filters select,.filters input{width:auto}.filters input[type=search]{flex:1;min-width:200px}
+.seg{display:inline-flex;background:var(--chip);border-radius:12px;padding:4px;gap:2px}.seg button{border:0;background:transparent;border-radius:9px;padding:7px 12px;font-weight:700;font-size:12.5px;color:var(--muted)}.seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0}
+.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.card{padding:16px 18px;min-height:112px}.card .kico{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:17px;margin-bottom:8px}
+.card .label{font-size:12px;color:var(--muted);font-weight:700}.card .value{font-size:clamp(19px,2vw,24px);font-weight:800;letter-spacing:-.6px;margin:2px 0;font-variant-numeric:tabular-nums}.card .hint{font-size:11.5px;color:var(--muted)}
+.panel{padding:20px;margin-bottom:16px;min-width:0}
+.panelhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}.panelhead p{color:var(--muted);font-size:12px;margin:3px 0 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}.grid2>.panel{margin-bottom:0}
+.legend{display:grid;gap:11px}.legendrow{display:grid;grid-template-columns:minmax(110px,1fr) auto;gap:5px;align-items:center}.legendrow .track{grid-column:1/-1}.legendrow strong{font-size:12.5px}.legendrow span{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.track{height:10px;border-radius:12px;background:var(--chip);overflow:hidden}.fill{height:100%;border-radius:12px;background:var(--pri);transition:width .5s ease}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:99px;background:var(--chip);color:var(--muted);padding:3px 9px;font-size:11px;font-weight:750;white-space:nowrap}
+.pill.ok{background:rgba(15,138,95,.13);color:#0A7350}.pill.wait{background:rgba(224,138,30,.15);color:#9A5A0B}.pill.red{background:rgba(209,92,102,.14);color:#B13D4A}
+body.dark .pill.ok{color:#6FE0B0}body.dark .pill.wait{color:#F5C07A}body.dark .pill.red{color:#F09AA2}
+.code{font-family:ui-monospace,Consolas,monospace;font-size:11px;font-weight:700;background:var(--chip);color:var(--pri);padding:2px 7px;border-radius:6px;letter-spacing:.02em;white-space:nowrap}
+body.dark .code{color:#6FE0B0}
+.empty{text-align:center;color:var(--muted);padding:28px 12px;border:1.5px dashed var(--line);border-radius:14px}
+.muted{color:var(--muted)}.help{font-size:12px;color:var(--muted)}
+.notice{padding:12px 15px;border-radius:12px;background:var(--mint);color:#0F5E42;font-size:12.5px;margin-bottom:14px}body.dark .notice{color:#8FE3BE}
+.notice.warn{background:rgba(224,138,30,.14);color:#86500C}body.dark .notice.warn{color:#F5C07A}
+.notice.err{background:rgba(209,92,102,.13);color:#A3303D}body.dark .notice.err{color:#F09AA2}
+.list{display:grid;gap:8px}
+.listitem{border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;gap:12px}.listitem small{display:block;color:var(--muted)}
+.exp{display:grid;grid-template-columns:42px 1fr auto auto;gap:12px;align-items:center;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:11px 13px;transition:.15s}
+.exp:hover{border-color:rgba(15,138,95,.45)}
+.exp .eico{width:42px;height:42px;border-radius:12px;background:var(--chip);display:grid;place-items:center;font-size:19px}
+.exp .et{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.exp small{display:block;color:var(--muted);font-size:12px;margin-top:2px;overflow-wrap:anywhere}
+.exp .eamt{text-align:right;display:grid;gap:4px;justify-items:end}.exp .eamt strong{font-size:15px;font-variant-numeric:tabular-nums}
+.exp .eact{display:flex;gap:4px}
+.ib{border:1px solid var(--line);background:var(--card2);border-radius:9px;width:34px;height:34px;display:grid;place-items:center;font-size:14px;transition:.12s}.ib:hover{border-color:var(--pri)}.ib.ok{background:var(--pri);color:#fff;border-color:var(--pri)}.ib.danger:hover{border-color:var(--red)}
+.dhead{display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 4px 6px}.dhead:first-child{margin-top:0}
+.modalback{position:fixed;inset:0;background:rgba(4,14,9,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:30;padding:16px}.modalback.show{display:flex}
+.modal{background:var(--card);border-radius:24px;width:min(640px,100%);max-height:94vh;overflow:auto;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:pop .18s ease}
+@keyframes pop{from{transform:translateY(10px) scale(.98);opacity:0}}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px}.modalhead h2{font-size:19px}.modalhead button{border:0;background:var(--chip);border-radius:10px;width:36px;height:36px;font-size:20px;color:var(--muted);flex:none}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}.formfooter{display:flex;justify-content:flex-end;gap:9px;margin-top:6px;flex-wrap:wrap}
+.bigamount{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:6px 16px}
+.bigamount span{font-size:20px;font-weight:800;color:var(--muted)}.bigamount input{border:0!important;background:transparent!important;font-size:28px!important;font-weight:800;padding:4px 0!important;width:100%;box-shadow:none!important;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{border:1px solid var(--line);background:var(--card2);border-radius:20px;padding:6px 12px;font-size:12.5px;font-weight:650;color:var(--ink);transition:.12s}
+.chips button:hover{border-color:var(--pri)}.chips button.on{background:var(--pri);border-color:var(--pri);color:#fff;box-shadow:0 4px 12px rgba(15,138,95,.28)}
+.quick{display:flex;gap:6px;flex-wrap:wrap}.quick button{border:0;background:var(--chip);border-radius:8px;padding:4px 9px;font-size:11.5px;font-weight:650}.quick button:hover{background:var(--pri);color:#fff}
+.catinfo{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:12.5px;display:grid;gap:6px}
+.catinfo .ci{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.catinfo p{margin:0;color:var(--muted)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:40;background:#0B2A1E;color:#fff;border-radius:12px;padding:12px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);display:none;font-weight:600;max-width:min(560px,92vw);text-align:center}.toast.show{display:block;animation:pop .2s}
+.section{display:none}.section.active{display:block;animation:fade .25s ease}@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+.hero{background:var(--hero);color:#fff;border-radius:24px;padding:24px 28px;display:grid;grid-template-columns:1.35fr 1fr;gap:24px;position:relative;overflow:hidden;box-shadow:0 14px 40px rgba(11,94,67,.28)}
+.hero.alert{background:linear-gradient(125deg,#7A4C05 0%,#C98A12 55%,#EDBE4A 125%);box-shadow:0 14px 40px rgba(160,105,10,.3)}
+.hero.neg{background:linear-gradient(125deg,#6E1E29 0%,#B2404D 60%,#DA7380 130%)}
+.hero:after{content:"";position:absolute;right:-70px;top:-70px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero>*{position:relative;z-index:1}
+.hero .htag{display:inline-block;background:rgba(255,255,255,.18);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.hero .big{font-size:42px;font-weight:800;letter-spacing:-1.5px;line-height:1.05;margin-top:10px;font-variant-numeric:tabular-nums}
+.hero .msg{opacity:.96;margin-top:8px;max-width:560px;font-size:14px}
+.hero .side{background:rgba(255,255,255,.13);border-radius:18px;padding:16px 18px;display:grid;gap:8px;align-content:center}
+.hero .side .l{font-size:12px;opacity:.88}.hero .side .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+.hbar{height:14px;border-radius:10px;background:rgba(255,255,255,.22);position:relative;overflow:visible}.hbar i{display:block;height:100%;border-radius:10px;background:#fff;max-width:100%;position:absolute;left:0;top:0}.hbar i.lan{background:rgba(255,255,255,.5)}
+.hleg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;opacity:.95}.hleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:#fff}.hleg i.lan{background:rgba(255,255,255,.5)}
+.hero .hsub{font-size:12.5px;opacity:.88;margin-top:4px;font-variant-numeric:tabular-nums}
+.hbar b{position:absolute;top:-4px;bottom:-4px;width:3px;border-radius:2px;background:#FFD866;box-shadow:0 0 0 2px rgba(0,0,0,.15)}
+.prog{height:12px;border-radius:10px;background:var(--chip);overflow:hidden}.prog i{display:block;height:100%;background:linear-gradient(90deg,#17A673,#0F8A5F);border-radius:10px}
+.gcat{margin-bottom:18px}.gcat h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px 4px}
+.gitem{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:14px 16px;display:grid;gap:6px}
+.gitem .gh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}.gitem p{margin:0;font-size:12.5px;color:var(--muted)}.gitem p b{color:var(--ink)}
+.ggrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.editbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 16px;border-radius:14px;background:rgba(224,165,38,.14);border:1px solid rgba(224,165,38,.4);margin-bottom:14px;font-size:13px;font-weight:600}
+.kv{display:grid;grid-template-columns:160px 1fr;gap:8px 14px;font-size:13.5px}.kv span{color:var(--muted)}
+.blist{display:grid;gap:6px;max-height:42vh;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:8px}
+.bitem{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;padding:6px 8px;border-radius:9px;font-size:12.5px;cursor:pointer}.bitem:hover{background:var(--card2)}.bitem input{width:17px;height:17px;accent-color:var(--pri)}
+.bnav,.fab{display:none}
+.pie{display:grid;grid-template-columns:190px 1fr;gap:20px;align-items:center}
+.ring{width:190px;height:190px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+.hole{width:58%;height:58%;border-radius:50%;background:var(--card);display:grid;place-content:center;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.hole b{font-size:17px;letter-spacing:-.4px;font-variant-numeric:tabular-nums}.hole small{font-size:11px;color:var(--muted)}
+.plegend{display:grid;gap:7px}.pl{display:grid;grid-template-columns:12px 1fr auto;gap:2px 9px;align-items:center;font-size:12.5px}
+.pl i{width:12px;height:12px;border-radius:4px}.pl span{font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl b{font-variant-numeric:tabular-nums}.pl small{grid-column:2/-1;color:var(--muted);font-size:11.5px;margin-top:-3px}
+.argobox{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--card2);border:1.5px dashed rgba(15,138,95,.45);border-radius:12px;padding:12px 14px;word-break:break-word;line-height:1.5;user-select:all}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.grid2,.hero{grid-template-columns:1fr}.ggrid{grid-template-columns:1fr}}
+@media(max-width:760px){
+ .pie{grid-template-columns:1fr;justify-items:center}.ring{width:175px;height:175px}.plegend{width:100%}
+ .sidebar{display:none}.main{padding:0 14px calc(96px + env(safe-area-inset-bottom))}
+ .mtop{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:10;background:var(--bg);padding:calc(10px + env(safe-area-inset-top)) 2px 10px;margin-bottom:6px}
+ .mtop .brand{padding:0}.mtop .brand img{width:36px;height:36px;border-radius:10px}.mtop .brand strong{font-size:16px;color:var(--ink)}.mtop .brand small{color:var(--gold)}
+ .top{margin-bottom:12px}.top .actions{display:none}
+ .bnav{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(0,0,0,.08)}
+ .bnav button{border:0;background:transparent;display:grid;justify-items:center;gap:1px;font-size:10px;font-weight:700;color:var(--muted);padding:4px 0}.bnav button span{font-size:19px;line-height:1.2}.bnav button.active{color:var(--pri)}
+ .bnav .plus span{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#17A673,#0B6E4A);color:#fff;display:grid;place-items:center;font-size:26px;margin-top:-20px;box-shadow:0 8px 20px rgba(15,138,95,.4)}
+ .cards{gap:10px;margin:12px 0}.card{padding:13px 14px;min-height:0}.card .kico{width:30px;height:30px;font-size:15px;margin-bottom:5px}
+ .hero{padding:20px;gap:16px;border-radius:20px}.hero .big{font-size:34px}
+ .formgrid{grid-template-columns:1fr}.full{grid-column:auto}
+ .modalback{align-items:flex-end;padding:0}.modal{border-radius:22px 22px 0 0;max-height:92vh;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+ .exp{grid-template-columns:38px 1fr auto;gap:10px;padding:10px 11px}.exp .eico{width:38px;height:38px;font-size:17px}
+ .exp .eact{grid-column:1/-1;justify-content:flex-end;border-top:1px dashed var(--line);padding-top:8px}
+ .kv{grid-template-columns:1fr;gap:2px}.kv span{margin-top:8px}
+ .filters .seg{width:100%;justify-content:space-between}.filters .seg button{flex:1}
+ .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+ <div class="brand"><img src="./icons/icon.svg" alt=""><div><strong>Pedro</strong><small>O Contador da Harvest</small></div></div>
+ <nav class="nav" aria-label="Navegação">
+  <button class="active" data-page="home"><span class="ico">🏠</span>Início</button>
+  <button data-page="expenses"><span class="ico">🧾</span>Despesas</button>
+  <button data-page="argo"><span class="ico">📝</span>Lançar no Argo</button>
+  <button data-page="advances"><span class="ico">💰</span>Adiantamentos</button>
+  <button data-page="glossary"><span class="ico">📖</span>Glossário de despesas</button>
+  <button data-page="settings"><span class="ico">⚙️</span>Configurações</button>
+ </nav>
+ <div class="sidebottom">
+  <div class="who"><b id="whoName">—</b><span id="whoRole"></span></div>
+  <div class="themebox"><span class="themeLbl">🌙 Tema escuro</span><button class="sw themeSw" aria-label="Alternar tema"></button></div>
+ </div>
+</aside>
+<main class="main">
+ <div class="mtop"><div class="brand"><img src="./icons/icon.svg" alt=""><div><strong>Pedro</strong><small>Contador da Harvest</small></div></div><button class="sw themeSw" aria-label="Alternar tema"></button></div>
+ <header class="top">
+  <div><div class="eyebrow" id="pageEyebrow">PROJETO HARVEST</div><h1 id="pageTitle">Início</h1><p class="sub" id="pageSub"></p></div>
+  <div class="actions"><button class="btn" id="installBtn" hidden>📲 Instalar Pedro</button><button class="btn" data-act="newAdv">💰 Adiantamento</button><button class="btn primary" data-act="newExp">＋ Nova despesa</button></div>
+ </header>
+ <section class="section active" id="home"><div id="homeContent"></div></section>
+ <section class="section" id="expenses"><div id="expContent"></div></section>
+ <section class="section" id="argo"><div id="argoContent"></div></section>
+ <section class="section" id="advances"><div id="advContent"></div></section>
+ <section class="section" id="glossary"><div id="glossContent"></div></section>
+ <section class="section" id="settings"><div id="setContent"></div></section>
+</main>
+</div>
+<nav class="bnav" aria-label="Navegação">
+ <button class="active" data-page="home"><span>🏠</span>Início</button>
+ <button data-page="expenses"><span>🧾</span>Despesas</button>
+ <button class="plus" data-act="newExp" aria-label="Nova despesa"><span>＋</span>Despesa</button>
+ <button data-page="argo"><span>📝</span>Argo</button>
+ <button data-page="advances"><span>💰</span>Adiant.</button>
+ <button data-page="settings"><span>⚙️</span>Ajustes</button>
+</nav>
+<div id="toast" class="toast" role="status"></div>
+<input type="file" id="importSheet" accept=".xlsx,.xlsm,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+<div id="modalBack" class="modalback" role="presentation"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modalhead"><h2 id="modalTitle"></h2><button id="closeModal" aria-label="Fechar">×</button></div><div id="modalBody"></div></div></div>
+<script>
+(()=>{'use strict';
+/* ============ Pedro · O Contador da Harvest ============ */
+const KEY='pedro_harvest_v1',PKEY='pedro_harvest_prefs_v1';
+const DEFAULT_CATS=[{"id": "HVCPTCOM", "code": "HVCPTCOM", "argoCode": "HVKATCOM", "group": "Transporte", "bi": "Combustível", "name": "Combustível", "argoType": "Combustível para carro alugado", "limit": null, "mode": "none", "rule": "none", "application": "Abastecimento de veiculo para deslocamento.", "detail": "Profissional ficara com um cartão de abastecimento, e nos casos onde alguns postos não aceitam maquininha deve ser pago em dinheiro, solicitando reembolso e explicando o motivo, cidade e Placa do Veículo. O Gestor deve ser avisado com antecedência.", "template": "{codigo} - Combustível - {cidade} - Placa {placa} - {data} - {detalhe}"}, {"id": "HVCPCBRI", "code": "HVCPCBRI", "argoCode": "HVKACBRI", "group": "Confraternização", "bi": "Confraternização", "name": "Brinde", "argoType": "Outras Despesas", "limit": null, "mode": "none", "rule": "none", "application": "Prêmios, presente e brindes referente à confraternizações do projeto.", "detail": "Indicar o nome da despesa, qual o material adquirido, quantidade, valor e motivo", "template": "{codigo} - Brinde - {detalhe} - {data}"}, {"id": "HVCPCBCL", "code": "HVCPCBCL", "argoCode": "HVKACBCL", "group": "Confraternização", "bi": "Confraternização", "name": "Brinde cliente", "argoType": "Outras Despesas", "limit": null, "mode": "none", "rule": "none", "application": "Prêmios, presente e brindes durante confraternizações referente ao cliente Bayer.", "detail": "Indicar o nome da despesa, qual o material adquirido, quantidade, valor e motivo", "template": "{codigo} - Brinde cliente - {detalhe} - {data}"}, {"id": "HVCPCSAL", "code": "HVCPCSAL", "argoCode": "HVKACSAL", "group": "Confraternização", "bi": "Confraternização", "name": "Local Confraternização", "argoType": "Outras Despesas", "limit": null, "mode": "none", "rule": "none", "application": "Salas e/ou espaços para confraternizações.", "detail": "Informar o motivo, local e a quantidade de pessoas. A nota fiscal deve possuir o detalhamento do serviço.", "template": "{codigo} - Local Confraternização - {cidade} - {pessoas} pessoas - {detalhe} - {data}"}, {"id": "HVCPCRCL", "code": "HVCPCRCL", "argoCode": "HVKACRCL", "group": "Confraternização", "bi": "Confraternização", "name": "Refeição Cliente", "argoType": "Refeição com cliente", "limit": null, "mode": "none", "rule": "none", "application": "Refeições feitas durante confraternizações referente ao cliente.", "detail": "Informar o motivo e a quantidade de pessoase nomes. A nota fiscal deve possuir o detalhamento do serviço.", "template": "{codigo} - Refeição Cliente - {pessoas} pessoas - {detalhe} - {data}"}, {"id": "HVCPCREF", "code": "HVCPCREF", "argoCode": "HVKACREF", "group": "Confraternização", "bi": "Confraternização", "name": "Refeição Confraternização", "argoType": "Refeição Jantar - Almoço", "limit": null, "mode": "none", "rule": "none", "application": "Refeições feitas durante confraternizações dos profissionais do projeto.", "detail": "Informar o motivo e a quantidade de pessoase nomes. A nota fiscal deve possuir o detalhamento do serviço.", "template": "{codigo} - Refeição Confraternização - {pessoas} pessoas - {detalhe} - {data}"}, {"id": "HVCPEDES", "code": "HVCPEDES", "argoCode": "HVKAEDES", "group": "Equipamentos", "bi": "Despache de bagagem", "name": "Despache de bagagem", "argoType": "Outras Despesas", "limit": null, "mode": "none", "rule": "none", "application": "Despesas extras com bagagens durante os voos relacionados a materiais do projeto, excesso de bagagem devido à itens pessoais não se aplica", "detail": "Indicar quais os materiais do projeto estão sendo despachados.", "template": "{codigo} - Despache de bagagem - {detalhe} - {data}"}, {"id": "HVCPCTES", "code": "HVCPCTES", "argoCode": "HVKACTES", "group": "Equipamentos", "bi": "Envio Caixa de Teste", "name": "Envio Caixa de Teste", "argoType": "Correio", "limit": null, "mode": "none", "rule": "none", "application": "Despesas específicas de envio de caixas testes via correio para outras as regionais. Validar antes de solicitar", "detail": "Indicar o motivo, detalhar a quantidade, descrição, peso, o distrito que vai receber as caixas. A nota fiscal deve possuir o detalhamento do serviço.", "template": "{codigo} - Envio Caixa de Teste - {detalhe} - {data}"}, {"id": "HVCPEEPI", "code": "HVCPEEPI", "argoCode": "HVKAEEPI", "group": "Equipamentos", "bi": "EPI", "name": "EPI", "argoType": "Material de Escritório", "limit": null, "mode": "none", "rule": "none", "application": "Despesas relacionadas a EPI necessários para execução das atividades nos armazéns, seja qual for o EPI, sendo indispensável indicar qual EPI foi adquirido.", "detail": "Indicar os EPIs adquiridos e motivo. A nota deve conter a descrição dos itens.", "template": "{codigo} - EPI - {detalhe} - {data}"}, {"id": "HVCPEREP", "code": "HVCPEREP", "argoCode": "HVKAEREP", "group": "Equipamentos", "bi": "EPI", "name": "Repelente", "argoType": "Outras Despesas", "limit": null, "mode": "none", "rule": "none", "application": "Despesas específicas com compra de repelentes por conta do surto de dengue. Validar antes de solicitar", "detail": "Indicar o motivo. A nota deve conter a descrição dos itens.", "template": "{codigo} - Repelente - {detalhe} - {data}"}, {"id": "HVCPECOR", "code": "HVCPECOR", "argoCode": "HVKAECOR", "group": "Equipamentos", "bi": "Equipamentos", "name": "Correios", "argoType": "Correio", "limit": null, "mode": "none", "rule": "none", "application": "Despesas relacionadas ao envio de qualquer material através dos serviços de correspondência, importante indicar qual material está sendo enviado e motivo.", "detail": "Indicar qual o material enviado e a necessidade do projeto para a utilização.", "template": "{codigo} - Correios - {detalhe} - {data}"}, {"id": "HVCPEEXA", "code": "HVCPEEXA", "argoCode": "HVKAEEXA", "group": "Equipamentos", "bi": "Equipamentos", "name": "Exames", "argoType": "Outras Despesas", "limit": null, "mode": "none", "rule": "none", "application": "Despesas específicas com exames, validar antes de solicitar.", "detail": "Indicar o motivo. A nota deve conter a descrição dos itens.", "template": "{codigo} - Exames - {detalhe} - {data}"}, {"id": "HVCPETEL", "code": "HVCPETEL", "argoCode": "HVKAETEL", "group": "Equipamentos", "bi": "Equipamentos", "name": "Telefone/Crédito", "argoType": "Telefone", "limit": null, "mode": "none", "rule": "none", "application": "Despesas relacionadas na aquisição de chip, créditos de internet e/ou telefone, exclusivamente para o projeto.", "detail": "Indicar os itens adquiridos e motivo.", "template": "{codigo} - Telefone/Crédito - {detalhe} - {data}"}, {"id": "HVCPETES", "code": "HVCPETES", "argoCode": "HVKAETES", "group": "Equipamentos", "bi": "Equipamentos", "name": "Teste Covid", "argoType": "Outras Despesas", "limit": null, "mode": "none", "rule": "none", "application": "Despesas específicas com teste da covid, validar antes de solicitar.", "detail": "Indicar o motivo. A nota deve conter a descrição dos itens.", "template": "{codigo} - Teste Covid - {detalhe} - {data}"}, {"id": "HVCPHHOS", "code": "HVCPHHOS", "argoCode": "HVKAHHOS", "group": "Hospedagem", "bi": "Hospedagem", "name": "Hospedagem Balcão", "argoType": "Hospedagem Nacional", "limit": null, "mode": "none", "rule": "lodging", "application": "Despesas referente a Hospedagem Balcão onde hoteis não aceitam faturado, despesas de frigobar não são reembolsáveis", "detail": "Informar quantidade e valor das diárias, caso possuam mais de uma pessoa informar quantas. Justificar caso esteja acima do Buget.", "template": "{codigo} - Hospedagem Balcão - {qtd} diárias - {pessoas} pessoa(s) - {cidade} - {data} - {detalhe}"}, {"id": "HVCPHLAV", "code": "HVCPHLAV", "argoCode": "HVKAHLAV", "group": "Hospedagem", "bi": "Lavanderia", "name": "Lavanderia", "argoType": "Lavanderia", "limit": 7000, "mode": "hard", "rule": "laundry", "application": "Despesas referente a lavagem de roupas no geral a partir de 7 dias do profissional alocado fora de casa, é permitido solicitar o reembolso a cada 7 dias, porém o valor não é cumulativo, deverá ser solicitado o reembolso em nome de um único profissional mesmo que ele tenha feito o pacote de lavanderia junto com outros colegas, no entanto, nesses casos é importante informar no pedido de reembolso o número de profissionais que estão solicitando reembolso.", "detail": "Caso possua mais de um profissional informar o nome do profissional beneficiario. A nota fiscal deve conter o detalhamento do serviço.", "template": "{codigo} - Lavanderia - {data} - {profissional}"}, {"id": "HVCPMAVA", "code": "HVCPMAVA", "argoCode": "HVKAMAVA", "group": "Manutenção e avarias", "bi": "Manutenção e avarias", "name": "Avaria", "argoType": "Manutenção e Reparos", "limit": null, "mode": "none", "rule": "none", "application": "Despesas relacionadas a qualquer manutenção veicular, como, troca de pneus, avaria, mecânica, funilaria e afins. Lembrando é indispensável informar qual foi a avaria e na nota fiscal deve constar o serviço que foi realizado no veículo.", "detail": "Indicar o serviço prestado, a placa e o ID do portal bayer da avaria O comprovante deve conter o detalhamento do serviço.", "template": "{codigo} - Avaria - {detalhe} - Placa {placa} - {data}"}, {"id": "HVCPMLAV", "code": "HVCPMLAV", "argoCode": "HVKAMLAV", "group": "Manutenção e avarias", "bi": "Manutenção e avarias", "name": "Lavagem veículo para devolução", "argoType": "Manutenção e Reparos", "limit": null, "mode": "none", "rule": "none", "application": "Despesas relacionadas a lavagem do carro, a lavagem só é permitida ser aplicada sempre pouco antes de realizar a devolução do veículo na locadora. Lavagens fora desse período precisam ser validadas junto ao gestor da região previamente.", "detail": "Informar o motivo da Lavageme Placa. A nota deve conter o detalhamento do serviço.", "template": "{codigo} - Lavagem veículo para devolução - Placa {placa} - {data} - {detalhe}"}, {"id": "HVCPEBAN", "code": "HVCPEBAN", "argoCode": "HVKAEBAN", "group": "Equipamentos", "bi": "Material de escritório", "name": "Banner", "argoType": "Material de Escritório", "limit": null, "mode": "none", "rule": "none", "application": "A3 POD Silo Digital.", "detail": "A3 POD Silo Digital.", "template": "{codigo} - Banner - {detalhe} - {data}"}, {"id": "HVCPEMAT", "code": "HVCPEMAT", "argoCode": "HVKAEMAT", "group": "Equipamentos", "bi": "Material de escritório", "name": "Material de escritório", "argoType": "Material de Escritório", "limit": null, "mode": "none", "rule": "none", "application": "Despesas relacionadas aos materiais de papelaria, caneta, cordões, crachá e afins. Também pode ser utilizado para solicitação de reembolso referente à avaria dos aparelhos, capas, películas, carregadores, exclusivamente para uso do projeto.", "detail": "Indicar qual o material adquirido e a quantidade. Nota deve conter a descrição dos itens.", "template": "{codigo} - Material de escritório - {detalhe} - {data}"}, {"id": "HVCPTPED", "code": "HVCPTPED", "argoCode": "HVKATPED", "group": "Transporte", "bi": "Pedágio", "name": "Pedágio", "argoType": "Pedágio", "limit": null, "mode": "none", "rule": "none", "application": "Taxas rodovias.", "detail": "Detalhar qual trecho.", "template": "{codigo} - Pedágio - {detalhe} - {data}"}, {"id": "HVCPTPEL", "code": "HVCPTPEL", "argoCode": "HVKATPEL", "group": "Transporte", "bi": "Pedágio", "name": "Pedágio eletrônico", "argoType": "Pedágio", "limit": null, "mode": "none", "rule": "none", "application": "Sem Parar e afins.", "detail": "No caso da contratação da TAG ( semparar ) Informar o modelo do veiculo, valor e nota fiscal. Os dados estão detalhados no aplicativo e pode ser utilizado como comprovação.", "template": "{codigo} - Pedágio eletrônico - Placa {placa} - {detalhe} - {data}"}, {"id": "HVCPPPER", "code": "HVCPPPER", "argoCode": "HVKAPPER", "group": "Perdiem", "bi": "Perdiem", "name": "Perdiem", "argoType": "Perdiem Nacional", "limit": 1900, "mode": "hard", "rule": "perdiem", "application": "Noites de repouso a trabalho, quando não estao em sua dicade de origem/contratação.", "detail": "Deve informar a quantidade de dias, o nome do beneficiario e a data inserida deve ser do primeiro dia do período ( o lançamento deve ser de uma linha por beneficiario).", "template": "{codigo} - Perdiem - {qtd} noites - {data} - {profissional}"}, {"id": "HVCPRREF", "code": "HVCPRREF", "argoCode": "HVKARREF", "group": "Refeição", "bi": "Refeição", "name": "Refeição", "argoType": "Refeição Jantar - Almoço", "limit": 4500, "mode": "hard", "rule": "meal", "application": "Jantar durante a semana (Seg a Sex) e Almoço+Jantar aos finais de semana e feriados. O valor não é acumulativo e café da manhã não é reembolsavel.", "detail": "Caso possua mais de um profissional deve ser realizado o lançamento de 1 profissional por linha caso seja necessario lançar em ultimo caso mais de um profissional deve harver todos os nomes . A nota fiscal deve possuir o detalhamento do serviço.", "template": "{codigo} - Refeição {refeicao} - {data} - {profissional}"}, {"id": "HVCPRCON", "code": "HVCPRCON", "argoCode": "HVKARCON", "group": "Refeição", "bi": "Refeição", "name": "Refeição Consultor", "argoType": "Refeição Jantar - Almoço", "limit": 4500, "mode": "hard", "rule": "mealWeekend", "application": "Refeição paga para consultor em feriados e finais de semana. O valor não é acumulativo e café da manhã não é reembolsavel.", "detail": "Caso possua mais de um profissional deve ser realizado o lançamento de 1 profissional por linha caso seja necessario lançar em ultimo caso mais de um profissional deve harver todos os nomes . A nota fiscal deve possuir o detalhamento do serviço.", "template": "{codigo} - Refeição Consultor - {data} - {profissional}"}, {"id": "HVCPTBAL", "code": "HVCPTBAL", "argoCode": "HVKATBAL", "group": "Transporte", "bi": "Transporte", "name": "Balsa", "argoType": "Transporte Público", "limit": null, "mode": "none", "rule": "none", "application": "Deslocamento de Balsa da equipe.", "detail": "Caso possua mais de um profissional informar a quantidade de pessoas. A nota fiscal deve possuir o detalhamento do serviço.", "template": "{codigo} - Balsa - {pessoas} pessoa(s) - {detalhe} - {data}"}, {"id": "HVCPTEST", "code": "HVCPTEST", "argoCode": "HVKATEST", "group": "Transporte", "bi": "Transporte", "name": "Estacionamento", "argoType": "Estacionamento", "limit": null, "mode": "none", "rule": "none", "application": "Para uso de estacionamento pago.", "detail": "Ao fazer o pagamento, solicitar nota fiscal e local. Informar o motivo do estacionamento.", "template": "{codigo} - Estacionamento - {cidade} - {detalhe} - {data}"}, {"id": "HVCPTONI", "code": "HVCPTONI", "argoCode": "HVKATONI", "group": "Transporte", "bi": "Transporte", "name": "Ônibus", "argoType": "Transporte Público", "limit": null, "mode": "none", "rule": "none", "application": "Para Tranporte Público.", "detail": "Detalhar qual o tipo de transporte. Onibus transporte intermunicipal, interestadual, sempre apresentar nota fiscal, voucher da passagem", "template": "{codigo} - Ônibus - {detalhe} - {data}"}, {"id": "HVCPTTAX", "code": "HVCPTTAX", "argoCode": "HVKATTAX", "group": "Transporte", "bi": "Transporte", "name": "Taxi", "argoType": "Taxi Comum", "limit": null, "mode": "none", "rule": "none", "application": "Deslocamento de táxi.", "detail": "Deve informar o trecho e apresentar comprovante.", "template": "{codigo} - Taxi - {detalhe} - {data}"}, {"id": "HVCPTAPP", "code": "HVCPTAPP", "argoCode": "HVKATAPP", "group": "Transporte", "bi": "Transporte", "name": "Taxi aplicativo", "argoType": "Taxi Aplicativo", "limit": null, "mode": "none", "rule": "none", "application": "Uber/ 99.", "detail": "informar o trecho. O e-mail das informações da corrida podem ser utilizados como comprovante.", "template": "{codigo} - Taxi aplicativo - {detalhe} - {data}"}, {"id": "HVCPTPAS", "code": "HVCPTPAS", "argoCode": "HVKATPAS", "group": "Treinamento", "bi": "Transporte", "name": "Transporte (Ônibus)", "argoType": "Passagem", "limit": null, "mode": "none", "rule": "none", "application": "Para deslocamento de equipe como Ônibus Rodoviário", "detail": "Detalhar qual o tipo de transporte, sempre apresentar nota fiscal, voucher da passagem", "template": "{codigo} - Transporte (Ônibus) - {detalhe} - {data}"}, {"id": "HVCPTREF", "code": "HVCPTREF", "argoCode": "HVKATREF", "group": "Treinamento", "bi": "Treinamento", "name": "Refeição Treinamento", "argoType": "Refeição Jantar - Almoço", "limit": null, "mode": "none", "rule": "none", "application": "Refeições feitas durante o treinamento à profissionais do projeto.", "detail": "Informar o motivo e a quantidade de pessoas. A nota fiscal deve possuir o detalhamento do serviço.", "template": "{codigo} - Refeição Treinamento - {pessoas} pessoas - {detalhe} - {data}"}, {"id": "HVCPTSAL", "code": "HVCPTSAL", "argoCode": "HVKATSAL", "group": "Treinamento", "bi": "Treinamento", "name": "Sala Treinamento", "argoType": "Outras Despesas", "limit": null, "mode": "none", "rule": "none", "application": "Salas e/ou espaços para treinamento, escritorios.", "detail": "Informar o motivo, local e a quantidade de pessoas. A nota fiscal deve possuir o detalhamento do serviço.", "template": "{codigo} - Sala Treinamento - {cidade} - {pessoas} pessoas - {detalhe} - {data}"}];
+const RULES={none:'Sem regra especial',perdiem:'Perdiem: valor por noite × nº de noites',meal:'Refeição: jantar todo dia; almoço só em fim de semana/feriado',mealWeekend:'Somente em fim de semana/feriado',laundry:'Lavanderia: 1 reembolso a cada 7 dias',lodging:'Hospedagem: informe o nº de diárias (sem limite de valor)'};
+const MODES={none:'Sem limite',hard:'Teto obrigatório (bloqueia acima do limite)',soft:'Teto com justificativa (permite acima, com justificativa)'};
+const GICON={'Transporte':'🚗','Confraternização':'🎉','Equipamentos':'🧰','Hospedagem':'🏨','Manutenção e avarias':'🔧','Perdiem':'🌙','Refeição':'🍽️','Treinamento':'🎓'};
+const GORDER=['Perdiem','Refeição','Hospedagem','Transporte','Manutenção e avarias','Equipamentos','Confraternização','Treinamento'];
+const gsort=(a,b)=>{const i=GORDER.indexOf(a),j=GORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j)||a.localeCompare(b)};
+const FAV=['HVCPPPER','HVCPRREF','HVCPHLAV','HVCPTCOM','HVCPHHOS','HVCPTPED'];
+const ROLES=['Líder','Coordenador','Coordenador Geral','Encarregado','Gerente','Outro'];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const pad=n=>String(n).padStart(2,'0'),iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),TODAY=()=>iso(new Date());
+const money=c=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format((+c||0)/100);
+const fmtAmt=c=>((+c||0)/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():'id-'+Date.now().toString(36)+Math.random().toString(36).slice(2));
+const isDate=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&iso(new Date(d+'T12:00:00'))===d;
+const dateFmt=d=>d?d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(0,4):'';
+const dnum=d=>Math.round(new Date(d+'T12:00:00').getTime()/864e5);
+const norm=v=>String(v||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ');
+const sum=a=>a.reduce((s,x)=>s+(+x.amount||0),0);
+const WD=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+function parseAmt(v){let s=String(v??'').trim().replace(/^R\$\s*/i,'').replace(/\s/g,'');if(!s)return null;
+ if(/^\d{1,3}(\.\d{3})+(,\d{1,2})?$/.test(s))s=s.replace(/\./g,'').replace(',','.');
+ else if(/^\d+(,\d{1,2})?$/.test(s))s=s.replace(',','.');
+ else if(!/^\d+(\.\d{1,2})?$/.test(s))return null;
+ const n=Math.round(parseFloat(s)*100);return n>0&&n<1e11?n:null}
+function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da,12)}
+function natHoliday(ds){if(!isDate(ds))return '';const md=ds.slice(5),F={'01-01':'Confraternização Universal','04-21':'Tiradentes','05-01':'Dia do Trabalho','09-07':'Independência','10-12':'N. Sra. Aparecida','11-02':'Finados','11-15':'Proclamação da República','11-20':'Consciência Negra','12-25':'Natal'};if(F[md])return F[md];const e=easter(+ds.slice(0,4));e.setDate(e.getDate()-2);return iso(e)===ds?'Sexta-feira Santa':''}
+const isWeekend=ds=>{const d=new Date(ds+'T12:00:00').getDay();return d===0||d===6};
+
+/* ---------- dados ---------- */
+function fresh(){return{version:1,profile:{name:'',role:'Líder',homeCity:''},settings:{defaultAdvance:500000,alertPct:80},categories:DEFAULT_CATS.map(c=>({...c})),advances:[],expenses:[]}}
+const okShape=x=>x&&typeof x==='object'&&x.profile&&typeof x.profile==='object'&&x.settings&&typeof x.settings==='object'&&Array.isArray(x.categories)&&Array.isArray(x.advances)&&Array.isArray(x.expenses);
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(okShape(x))return x}catch(e){}return fresh()}
+let db=load(),PREF={};db.categories.forEach(c=>{if(!c.template){const d=DEFAULT_CATS.find(z=>z.id===c.id);c.template=d?.template||GEN_TPL}});try{PREF=JSON.parse(localStorage.getItem(PKEY)||'{}')||{}}catch(e){}
+let page='home',editMode=false,gq='',F={status:'all',group:'',period:'all',q:''};
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){toast('Não foi possível salvar neste navegador (modo privado ou sem espaço).');return false}}
+function savePref(){try{localStorage.setItem(PKEY,JSON.stringify(PREF))}catch(e){}}
+function toast(s,ms){const t=$('#toast');t.textContent=s;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),ms||3800)}
+const cat=id=>db.categories.find(c=>c.id===id);
+const icon=c=>GICON[c?.group]||'🧾';
+const qtyRule=c=>!!c&&(c.rule==='perdiem'||c.rule==='lodging');
+const qtyWord=(c,q)=>c?.rule==='perdiem'?(q==1?'noite':'noites'):(q==1?'diária':'diárias');
+function totals(){const rec=sum(db.advances.filter(a=>a.type!=='devolucao')),dev=sum(db.advances.filter(a=>a.type==='devolucao')),adv=rec-dev,spent=sum(db.expenses),done=sum(db.expenses.filter(e=>e.status==='prestada'));
+ return{rec,dev,adv,spent,done,pend:spent-done,hand:adv-done,cash:adv-spent,pct:adv>0?spent/adv*100:0,pctDone:adv>0?done/adv*100:0,pendN:db.expenses.filter(e=>e.status!=='prestada').length,doneN:db.expenses.filter(e=>e.status==='prestada').length}}
+function limitText(c){if(!c||!c.limit||c.mode==='none')return 'Sem limite definido';const base=money(c.limit)+(c.rule==='perdiem'?' por noite':c.rule==='lodging'?' por diária':c.rule==='laundry'?' a cada 7 dias':'');return (c.mode==='soft'?'Referência: ':'Limite: ')+base}
+const GEN_TPL='{codigo} - {categoria} - {detalhe} - {data} - {profissional}';
+const PH={codigo:'Código para a descrição do Argo (ex.: HVKARREF)',categoria:'Nome da despesa',refeicao:'Almoço ou Jantar',data:'Data da despesa (dd/mm/aaaa)',profissional:'Nome do beneficiário',cidade:'Cidade',qtd:'Nº de noites/diárias',pessoas:'Nº de pessoas',placa:'Placa do veículo',detalhe:'Detalhamento escrito no lançamento',valor:'Valor (R$)'};
+const tplOf=c=>(c&&c.template)||DEFAULT_CATS.find(d=>d.id===c?.id)?.template||GEN_TPL;
+const tplHas=(c,k)=>tplOf(c).includes('{'+k+'}');
+function argoDesc(e,cc){const c=cc||cat(e.categoryId)||{};
+ const V={codigo:c.argoCode||c.code||'',categoria:c.name||'',refeicao:c.rule==='meal'?(e.meal||'Jantar'):'',data:dateFmt(e.date),profissional:e.beneficiary||db.profile.name||'',cidade:e.city||'',qtd:e.qty?String(e.qty):'',pessoas:e.people?String(e.people):'',placa:(e.plate||'').toUpperCase(),detalhe:e.note||'',valor:e.amount?fmtAmt(e.amount):''};
+ return tplOf(c).split(/\s+-\s+/).map(seg=>{const ks=[...seg.matchAll(/\{(\w+)\}/g)].map(m=>m[1]);if(ks.length&&ks.every(k=>!String(V[k]??'').trim()))return '';return seg.replace(/\{(\w+)\}/g,(m,k)=>k in V?V[k]:m).replace(/\s+/g,' ').trim()}).filter(Boolean).join(' - ')}
+
+/* ---------- regras ---------- */
+function check(x){const c=cat(x.categoryId),E=[],W=[];
+ if(!c)E.push('Escolha a categoria da despesa.');
+ if(!isDate(x.date))E.push('Informe a data.');
+ if(!x.city)E.push('Informe a cidade.');
+ if(c&&qtyRule(c)&&!(x.qty>=1))E.push(c.rule==='perdiem'?'Informe o nº de noites.':'Informe o nº de diárias.');
+ if(!x.amount)E.push('Informe um valor válido (ex.: 45,00).');
+ if(!c||!isDate(x.date))return{E,W};
+ const off=isWeekend(x.date)||!!natHoliday(x.date)||x.holiday;
+ if(c.rule==='meal'&&x.meal==='Almoço'&&!off)E.push('Almoço só é reembolsável em fim de semana ou feriado. Se for feriado local, marque “É feriado”.');
+ if(c.rule==='mealWeekend'&&!off)E.push('Esta refeição só é reembolsável em fim de semana ou feriado. Se for feriado local, marque “É feriado”.');
+ if(c.limit&&c.mode!=='none'&&x.amount){const cap=c.limit*(qtyRule(c)?(x.qty||1):1);
+  if(x.amount>cap){if(c.mode==='hard')E.push(`Valor acima do limite de ${money(cap)}. Lance no máximo ${money(cap)} — o excedente não é reembolsável.`);
+   else if(!x.note)E.push(`Valor acima da referência de ${money(cap)}: escreva a justificativa no detalhamento.`);
+   else W.push(`Acima da referência de ${money(cap)} — a justificativa do detalhamento será usada.`)}}
+ const same=db.expenses.filter(e=>e.id!==x.id&&e.categoryId===x.categoryId&&norm(e.beneficiary)===norm(x.beneficiary));
+ if((c.rule==='meal'||c.rule==='mealWeekend')&&same.some(e=>e.date===x.date&&(c.rule!=='meal'||(e.meal||'Jantar')===(x.meal||'Jantar'))))W.push('Já existe esta refeição neste dia para este beneficiário (o limite não é acumulativo).');
+ if(c.rule==='laundry'){const t=dnum(x.date),n=same.find(e=>Math.abs(dnum(e.date)-t)<7);if(n)W.push(`Já existe lavanderia em ${dateFmt(n.date)}: o reembolso é a cada 7 dias.`)}
+ if(c.rule==='perdiem'&&db.profile.homeCity&&norm(x.city)===norm(db.profile.homeCity))W.push('Perdiem vale para noites fora da sua cidade de origem.');
+ if(c.rule==='perdiem'){const t=dnum(x.date),q=x.qty||1,ov=same.find(e=>{const s=dnum(e.date);return s<t+q&&t<s+(e.qty||1)});if(ov)W.push(`Este período de perdiem se sobrepõe ao lançamento de ${dateFmt(ov.date)}.`)}
+ if(tplHas(c,'detalhe')&&!x.note)W.push('O detalhamento está vazio — ele faz parte da descrição do Argo desta despesa.');
+ if(tplHas(c,'placa')&&!x.plate)W.push('Informe a placa do veículo — ela faz parte da descrição do Argo.');
+ if(x.date>TODAY())W.push('A data é futura.');
+ return{E,W}}
+
+/* ---------- navegação ---------- */
+const META={home:['PROJETO HARVEST','Início',''],expenses:['PROJETO HARVEST','Despesas','Lance, consulte e marque o que já foi prestado conta.'],argo:['PROJETO HARVEST','Lançamento no Argo','Textos prontos para a descrição de cada despesa no Argo.'],advances:['PROJETO HARVEST','Adiantamentos','Valores recebidos para cobrir as despesas do projeto.'],glossary:['PROJETO HARVEST','Glossário de despesas','Categorias, códigos Harvest, limites e o que informar no Argo.'],settings:['PROJETO HARVEST','Configurações','Seu perfil, parâmetros e dados.']};
+function navigate(p){if(!META[p])p='home';page=p;$$('.section').forEach(s=>s.classList.toggle('active',s.id===p));$$('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ $('#pageEyebrow').textContent=META[p][0];$('#pageTitle').textContent=p==='home'?(db.profile.name?`Olá, ${db.profile.name.split(' ')[0]}! 👋`:'Olá! 👋'):META[p][1];$('#pageSub').textContent=p==='home'?'Seu controle de adiantamentos e prestação de contas.':META[p][2];
+ if(p!=='glossary')editMode=false;render();window.scrollTo({top:0,behavior:'smooth'})}
+function render(){$('#whoName').textContent=db.profile.name||'—';$('#whoRole').textContent=[db.profile.role,db.profile.homeCity].filter(Boolean).join(' · ');
+ ({home:renderHome,expenses:renderExpenses,argo:renderArgo,advances:renderAdvances,glossary:renderGlossary,settings:renderSettings})[page]()}
+const card=(label,value,hint,ico,c)=>`<div class="card"><div class="kico" style="background:${c}1F;color:${c}">${ico}</div><div class="label">${label}</div><div class="value" style="color:${c}">${value}</div><div class="hint">${hint}</div></div>`;
+
+/* ---------- Início ---------- */
+function renderHome(){const t=totals(),al=+db.settings.alertPct||80;
+ if(!db.advances.length&&!db.expenses.length){$('#homeContent').innerHTML=`<section class="hero"><div><span class="htag">Bem-vindo ao Pedro</span><div class="big">Vamos começar?</div><div class="msg">1) Registre o adiantamento que você recebeu. 2) Lance cada despesa com data, cidade e categoria — o código Harvest vem automático. 3) Marque o que já foi prestado conta no Argo.</div><div class="row" style="margin-top:16px"><button class="btn light" data-act="newAdv">💰 Registrar adiantamento</button><button class="btn glass" data-act="newExp">＋ Lançar despesa</button><button class="btn glass" data-act="upSheet">⬆ Importar planilha</button></div></div><div class="side"><div class="l">Dinheiro em seu poder</div><div class="v">${money(0)}</div><div class="hbar"><i style="width:0"></i><b style="left:${al}%"></b></div><div class="l">Ao consumir ${al}% do adiantamento, você pode solicitar outro.</div></div></section>`;return}
+ const pct=t.pct,state=(t.hand<0||t.cash<0)?'neg':(t.adv>0&&pct>=al?'alert':'');
+ let msg;if(t.adv<=0)msg='Registre o adiantamento recebido para acompanhar seu saldo.';
+ else if(t.hand<0)msg=`Você já prestou no Argo <b>${money(-t.hand)}</b> além do adiantamento recebido.`;
+ else if(t.cash<0)msg=`Suas despesas lançadas já passam <b>${money(-t.cash)}</b> do adiantamento. Solicite um novo adiantamento e preste contas das despesas pendentes (${money(t.pend)}).`;
+ else if(pct>=al)msg=`✅ Você já consumiu <b>${pct.toFixed(0)}%</b> do adiantamento — <b>já pode solicitar um novo</b>.`;
+ else msg=`Faltam <b>${money(Math.ceil(t.adv*al/100)-t.spent)}</b> em despesas para atingir ${al}% e poder solicitar novo adiantamento.`;
+ const byCat={};db.expenses.forEach(e=>{const n=cat(e.categoryId)?.name||'Categoria removida';byCat[n]=(byCat[n]||0)+e.amount});const bc=Object.entries(byCat).sort((a,b)=>b[1]-a[1]),mx=bc[0]?.[1]||1;
+ const recent=[...db.expenses].sort(byDate).slice(0,5),dp=t.spent?t.done/t.spent*100:0;
+ $('#homeContent').innerHTML=`<section class="hero ${state}"><div><span class="htag">Dinheiro em seu poder</span><div class="big">${money(t.hand)}</div><div class="hsub">Adiantamento ${money(t.adv)} − prestado no Argo ${money(t.done)}</div><div class="msg">${msg}</div><div class="row" style="margin-top:16px"><button class="btn light" data-act="newExp">＋ Nova despesa</button><button class="btn glass" data-act="newAdv">💰 Adiantamento</button></div></div>
+ <div class="side"><div class="l">Consumo do adiantamento (despesas lançadas)</div><div class="v">${pct.toFixed(0)}%</div><div class="hbar" title="Marcador = ${al}%"><i class="lan" style="width:${Math.min(100,pct)}%"></i><i class="pre" style="width:${Math.min(100,t.pctDone)}%"></i><b style="left:calc(${al}% - 1px)"></b></div><div class="hleg"><span><i class="pre"></i>Prestado ${money(t.done)} (${t.pctDone.toFixed(0)}%)</span><span><i class="lan"></i>Lançado ${money(t.spent)}</span></div><div class="l">Recebido ${money(t.adv)} · marcador em ${al}%</div></div></section>
+ <div class="cards">${card('Adiantamentos recebidos',money(t.adv),`${db.advances.filter(a=>a.type!=='devolucao').length} adiantamento(s)${t.dev?' · '+money(t.dev)+' devolvidos':''}`,'💰','#2F6FD6')}${card('Despesas lançadas no Pedro',money(t.spent),`${db.expenses.length} despesa(s) lançada(s)`,'🧾','#0F8A5F')}${card('Prestado no Argo',money(t.done),`${t.doneN} despesa(s) · ${dp.toFixed(0)}% do lançado`,'✅','#0A7350')}${card('A prestar conta',money(t.pend),t.pendN?`${t.pendN} lançada(s) no Pedro, ainda não prestada(s) no Argo`:'Tudo prestado 🎉','⏳',t.pendN?'#E08A1E':'#0A7350')}</div>
+ ${piesHtml()}
+ <div class="grid2"><div class="panel"><div class="panelhead"><div><h2>📤 Prestação de contas</h2><p>Quanto do que você gastou já foi prestado no Argo</p></div>${t.pendN?'<button class="btn small primary" data-act="batch">✓ Prestar conta</button>':''}</div>
+ <div class="prog"><i style="width:${dp}%"></i></div><div class="row" style="justify-content:space-between;margin-top:8px;font-size:12.5px"><span><b>${money(t.done)}</b> prestados</span><span class="muted">${money(t.pend)} aguardando</span></div>
+ ${t.pendN?`<div class="list" style="margin-top:14px">${db.expenses.filter(e=>e.status!=='prestada').sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4).map(e=>`<div class="listitem"><span><strong>${icon(cat(e.categoryId))} ${esc(cat(e.categoryId)?.name||'—')}</strong><small>${dateFmt(e.date)} · ${esc(e.city)}</small></span><strong>${money(e.amount)}</strong></div>`).join('')}${t.pendN>4?`<button class="btn small" data-goto="expenses" data-status="pendente">Ver as ${t.pendN} pendentes →</button>`:''}</div>`:'<div class="empty" style="margin-top:14px">Nenhuma despesa aguardando prestação. 👏</div>'}</div>
+ <div class="panel"><div class="panelhead"><div><h2>📊 Ranking de gastos por categoria</h2><p>Todo o período</p></div></div>${bc.length?`<div class="legend">${bc.slice(0,8).map(([n,v])=>`<div class="legendrow"><strong>${esc(n)}</strong><span>${money(v)} · ${Math.round(v/t.spent*100)}%</span><div class="track"><div class="fill" style="width:${Math.max(2,v/mx*100)}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sem despesas lançadas.</div>'}</div></div>
+ <div class="panel"><div class="panelhead"><div><h2>🕒 Últimas despesas</h2></div><button class="btn small" data-goto="expenses">Ver todas →</button></div>${recent.length?`<div class="list">${recent.map(expItem).join('')}</div>`:'<div class="empty">Nenhuma despesa lançada ainda.</div>'}</div>`}
+const byDate=(a,b)=>b.date.localeCompare(a.date)||String(b.createdAt||'').localeCompare(String(a.createdAt||''));
+
+/* ---------- gráficos de pizza ---------- */
+const PCOL=['#0F8A5F','#E0A526','#2F6FD6','#D15C66','#835FBD','#3DBE88','#4AA7D5','#B77C49','#9AA9A0'];
+function pieData(by){const arr=Object.entries(by).map(([name,o])=>({name,...o}));return arr}
+function pieTop(arr,key,n){arr=[...arr].sort((a,b)=>b[key]-a[key]);if(arr.length<=n)return arr;const top=arr.slice(0,n-1),rest=arr.slice(n-1);return [...top,{name:'Outras',amount:rest.reduce((s,x)=>s+x.amount,0),n:rest.reduce((s,x)=>s+x.n,0)}]}
+function pieChart(arr,key,center,sub,fmt){const tot=arr.reduce((s,x)=>s+x[key],0);if(!tot)return '<div class="empty">Sem despesas lançadas.</div>';let acc=0;
+ const seg=arr.map((x,i)=>{const a=acc/tot*100;acc+=x[key];return `${PCOL[i%PCOL.length]} ${a.toFixed(3)}% ${(acc/tot*100).toFixed(3)}%`}).join(',');
+ return `<div class="pie"><div class="ring" style="background:conic-gradient(${seg})"><div class="hole"><b>${center}</b><small>${sub}</small></div></div><div class="plegend">${arr.map((x,i)=>`<div class="pl" title="${esc(x.name)}: ${fmt(x)}"><i style="background:${PCOL[i%PCOL.length]}"></i><span>${esc(x.name)}</span><b>${(x[key]/tot*100).toFixed(0)}%</b><small>${fmt(x)}</small></div>`).join('')}</div></div>`}
+function piesHtml(){const grp=l=>{const by={};l.forEach(e=>{const n=cat(e.categoryId)?.name||'Categoria removida';(by[n]=by[n]||{amount:0,n:0});by[n].amount+=e.amount;by[n].n++});return pieData(by)};
+ const all=grp(db.expenses);if(!all.length)return '';const P=db.expenses.filter(e=>e.status==='prestada'),pr=grp(P),tot=sum(db.expenses),tp=sum(P);const short=v=>money(v).replace(/,\d\d$/,'');
+ return `<div class="grid2"><div class="panel"><div class="panelhead"><div><h2>🧾 Despesas lançadas no Pedro</h2><p>Todas as despesas lançadas, por categoria · ${db.expenses.length} lançamento(s)</p></div></div>${pieChart(pieTop(all,'amount',8),'amount',short(tot),'lançado',x=>money(x.amount)+' · '+x.n+' lanç.')}</div>
+ <div class="panel"><div class="panelhead"><div><h2>✅ Valores prestados no Argo</h2><p>Despesas já prestadas, por categoria · ${P.length} de ${db.expenses.length} · ${tot?Math.round(tp/tot*100):0}% do lançado</p></div></div>${pr.length?pieChart(pieTop(pr,'amount',8),'amount',short(tp),'prestado',x=>money(x.amount)+' · '+x.n+' lanç.'):'<div class="empty">Nenhuma despesa marcada como prestada no Argo ainda.<br>Use “✓ Prestar conta” para marcar.</div>'}</div></div>`}
+
+/* ---------- ZIP (xlsx) ---------- */
+const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=u=>{let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CRCT[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0};
+function zipStore(files){const te=new TextEncoder(),parts=[],cen=[];let off=0;
+ for(const f of files){const nm=te.encode(f.name),d=typeof f.data==='string'?te.encode(f.data):f.data,crc=crc32(d);
+  const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,0,true);h.setUint16(12,0x21,true);h.setUint32(14,crc,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nm.length,true);h.setUint16(28,0,true);
+  const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);c.setUint16(12,0,true);c.setUint16(14,0x21,true);c.setUint32(16,crc,true);c.setUint32(20,d.length,true);c.setUint32(24,d.length,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);
+  parts.push(new Uint8Array(h.buffer),nm,d);cen.push(new Uint8Array(c.buffer),nm);off+=30+nm.length+d.length}
+ const cs=cen.reduce((s,x)=>s+x.length,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+ return new Blob([...parts,...cen,new Uint8Array(e.buffer)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+async function unzip(buf){const u=new Uint8Array(buf),dv=new DataView(buf),td=new TextDecoder();let e=u.length-22;while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;
+ if(e<0)throw Error('o arquivo não é uma planilha .xlsx válida');const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const files={};
+ for(let i=0;i<n;i++){if(dv.getUint32(p,true)!==0x02014b50)throw Error('planilha corrompida');const method=dv.getUint16(p+10,true),csize=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),off=dv.getUint32(p+42,true);
+  const name=td.decode(u.subarray(p+46,p+46+nl)).replace(/^\/+/,'');p+=46+nl+xl+cl;const ln=dv.getUint16(off+26,true),lx=dv.getUint16(off+28,true),st=off+30+ln+lx;files[name]={method,data:u.subarray(st,st+csize)}}return files}
+async function zread(files,name){const f=files[String(name||'').replace(/^\/+/,'')];if(!f)return null;let d=f.data;
+ if(f.method===8){if(typeof DecompressionStream==='undefined')throw Error('este navegador não lê .xlsx — atualize o navegador ou salve a planilha como CSV');d=new Uint8Array(await new Response(new Blob([d]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}
+ else if(f.method!==0)throw Error('formato de compressão não suportado');return new TextDecoder().decode(d)}
+const xdoc=t=>new DOMParser().parseFromString(t,'application/xml'),tags=(n,t)=>[...n.getElementsByTagNameNS('*',t)];
+const colIdx=r=>{let n=0;for(const ch of r.replace(/\d+/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1};
+async function readXlsx(buf){const files=await unzip(buf),wb=await zread(files,'xl/workbook.xml');if(!wb)throw Error('a planilha não possui workbook');
+ const RNS='http://schemas.openxmlformats.org/officeDocument/2006/relationships',sheets=tags(xdoc(wb),'sheet').map(s=>({name:s.getAttribute('name'),rid:s.getAttributeNS(RNS,'id')}));
+ const rels={};const rx=await zread(files,'xl/_rels/workbook.xml.rels');if(rx)tags(xdoc(rx),'Relationship').forEach(r=>rels[r.getAttribute('Id')]=r.getAttribute('Target'));
+ const sh=sheets.find(s=>norm(s.name)==='despesas')||sheets[0];if(!sh)throw Error('nenhuma aba encontrada');let tg=rels[sh.rid]||'worksheets/sheet1.xml';tg=tg.startsWith('/')?tg.slice(1):'xl/'+tg.replace(/^\.\//,'');
+ const ssx=await zread(files,'xl/sharedStrings.xml'),ss=ssx?tags(xdoc(ssx),'si').map(si=>tags(si,'t').filter(t=>t.parentNode.localName!=='rPh').map(t=>t.textContent).join('')):[];
+ const wx=await zread(files,tg);if(!wx)throw Error('aba de despesas não encontrada');const rows=[];
+ tags(xdoc(wx),'row').forEach((r,ri)=>{const rn=+r.getAttribute('r')||ri+1,arr=[];let ci=0;tags(r,'c').forEach(c=>{const ref=c.getAttribute('r');if(ref)ci=colIdx(ref);const t=c.getAttribute('t'),v=tags(c,'v')[0]?.textContent;let val;
+  if(t==='s')val=ss[+v]??'';else if(t==='inlineStr')val=tags(c,'t').map(x=>x.textContent).join('');else if(t==='str'||t==='e')val=v??'';else if(t==='b')val=v==='1'?'Sim':'Não';else val=v==null||v===''?'':Number(v);arr[ci++]=val});rows.push({n:rn,cells:arr})});return rows}
+function readCsvRows(text){text=text.replace(/^\uFEFF/,'');const first=text.split(/\r?\n/)[0]||'',del=(first.match(/;/g)||[]).length>=(first.match(/,/g)||[]).length?';':',';const rows=[];let row=[],cell='',q=false,ln=1,rl=1;
+ for(let i=0;i<text.length;i++){const ch=text[i];if(q){if(ch==='"'&&text[i+1]==='"'){cell+='"';i++}else if(ch==='"')q=false;else{cell+=ch;if(ch==='\n')ln++}}else if(ch==='"')q=true;else if(ch===del){row.push(cell);cell=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cell);rows.push({n:rl,cells:row});row=[];cell='';ln++;rl=ln}else cell+=ch}
+ row.push(cell);rows.push({n:rl,cells:row});return rows}
+
+/* ---------- template Excel ---------- */
+const TCOLS=[['Data *',13,'date'],['Cidade *',22],['Categoria *',38],['Refeição (Almoço/Jantar)',14],['Nº noites / diárias',12],['Nº pessoas',10],['Placa do veículo',13],['Valor (R$) *',13,'money'],['Feriado? (Sim/Não)',11],['Beneficiário',24],['Detalhamento para o Argo',46],['Lançada no Argo? (Sim/Não)',13],['Prestada conta? (Sim/Não)',13],['Nº da prestação',14]];
+const xesc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');
+const colL=i=>{let s='';i++;while(i){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
+const catLabel=c=>c.code+' - '+c.name;
+function sheetXml(rows,opt){opt=opt||{};const cells=rows.map((r,ri)=>`<row r="${ri+1}"${opt.hh&&ri===0?' ht="34" customHeight="1"':''}>${r.map((v,ci)=>{if(v===''||v==null)return '';const ref=colL(ci)+(ri+1),st=ri===0&&opt.head?' s="1"':(opt.style&&opt.style(ri,ci))?` s="${opt.style(ri,ci)}"`:'';return typeof v==='number'?`<c r="${ref}"${st}><v>${v}</v></c>`:`<c r="${ref}" t="inlineStr"${st}><is><t xml:space="preserve">${xesc(v)}</t></is></c>`}).join('')}</row>`).join('');
+ return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">${opt.tab?'<sheetPr><tabColor rgb="FF0F8A5F"/></sheetPr>':''}<sheetViews><sheetView workbookViewId="0"${opt.tab?' tabSelected="1"':''}>${opt.freeze?'<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>':''}</sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols>${opt.cols.map((c,i)=>`<col min="${i+1}" max="${i+1}" width="${c[0]}" customWidth="1"${c[1]?` style="${c[1]}"`:''}/>`).join('')}</cols><sheetData>${cells}</sheetData>${opt.extra||''}</worksheet>`}
+function templateXlsx(){const cats=[...db.categories].sort((a,b)=>gsort(a.group,b.group)||a.name.localeCompare(b.name)),N=cats.length+1,MAX=2000;
+ const dv=`<dataValidations count="5"><dataValidation type="list" allowBlank="1" showErrorMessage="1" errorTitle="Categoria" error="Escolha uma categoria da lista (aba Categorias)." sqref="C2:C${MAX}"><formula1>Categorias!$A$2:$A$${N}</formula1></dataValidation><dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="D2:D${MAX}"><formula1>"Jantar,Almoço"</formula1></dataValidation><dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="I2:I${MAX} L2:L${MAX} M2:M${MAX}"><formula1>"Sim,Não"</formula1></dataValidation><dataValidation type="decimal" allowBlank="1" showErrorMessage="1" error="Informe um valor maior que zero, ex.: 45,00" sqref="H2:H${MAX}"><formula1>0.01</formula1><formula2>1000000</formula2></dataValidation><dataValidation type="whole" allowBlank="1" showErrorMessage="1" sqref="E2:F${MAX}"><formula1>1</formula1><formula2>500</formula2></dataValidation></dataValidations>`;
+ const s1=sheetXml([TCOLS.map(c=>c[0])],{head:1,hh:1,freeze:1,tab:1,cols:TCOLS.map(c=>[c[1],c[2]==='date'?2:c[2]==='money'?3:0]),extra:dv});
+ const lim=c=>c.limit&&c.mode!=='none'?fmtAmt(c.limit)+(c.rule==='perdiem'?' / noite':c.rule==='laundry'?' / 7 dias':'')+(c.mode==='soft'?' (referência)':''):'Sem limite';
+ const crow=[['Categoria (selecionar na aba Despesas)','Código Harvest','Código descrição Argo','Grupo','Tipo Argo','Limite (R$)','Regra','O que informar no detalhamento']];cats.forEach(c=>crow.push([catLabel(c),c.code,c.argoCode,c.group,c.argoType,lim(c),c.rule!=='none'?RULES[c.rule]:'',c.detail]));
+ const s2=sheetXml(crow,{head:1,hh:1,freeze:1,cols:[[42],[14],[16],[20],[26],[18],[44],[90]]});
+ const ins=[['Pedro · O Contador da Harvest — como preencher'],[''],['1. Preencha uma despesa por linha na aba "Despesas", a partir da linha 2. Não altere a linha de títulos.'],['2. Campos obrigatórios (*): Data, Cidade, Categoria e Valor. Para Perdiem, o valor pode ficar vazio: o Pedro calcula R$ por noite × nº de noites.'],['3. Categoria: escolha na lista (setinha da célula). A aba "Categorias" mostra códigos, limites e o que escrever no detalhamento.'],['4. Data no formato dd/mm/aaaa. Valor no formato 45,00.'],['5. Refeição: informe Jantar ou Almoço (almoço só em fim de semana/feriado; marque Feriado = Sim para feriados locais).'],['6. Perdiem e Hospedagem: informe o nº de noites/diárias. A data é a do primeiro dia do período.'],['7. Combustível, avaria, lavagem e pedágio eletrônico: informe a placa. Hospedagem, balsa, confraternização e treinamento: informe o nº de pessoas.'],['8. Beneficiário vazio = seu nome. Lançada no Argo / Prestada conta: Sim ou Não (vazio = Não).'],['9. No Pedro: Despesas → ⬆ Importar planilha. O Pedro mostra uma prévia, aplica os limites e ignora linhas com erro ou duplicadas.'],[''],['Exemplos de preenchimento:'],TCOLS.map(c=>c[0])];
+ const ex=[['19/10/2026','Santa Maria/RS',catLabel(cat('HVCPRREF')||cats[0]),'Jantar','','','','42,90','','','','Não','Não',''],['13/10/2026','Santa Maria/RS',catLabel(cat('HVCPPPER')||cats[0]),'','5','','','','','','','Não','Não',''],['15/10/2026','Caçapava do Sul/RS',catLabel(cat('HVCPTCOM')||cats[0]),'','','','ABC1D23','250,00','','','Posto sem maquininha; gestor avisado','Sim','Não','']];
+ const s3=sheetXml([...ins,...ex],{cols:[[13],[22],[38],[14],[12],[10],[13],[13],[11],[24],[46],[13],[13],[14]],style:(r,c)=>r===0?4:r===13?1:0});
+ const ws=['Despesas','Categorias','Instruções'];
+ const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/></numFmts><fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="14"/><color rgb="FF0B5E43"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0F8A5F"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+ return zipStore([
+  {name:'[Content_Types].xml',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${ws.map((w,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`},
+  {name:'_rels/.rels',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+  {name:'xl/workbook.xml',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><bookViews><workbookView activeTab="0"/></bookViews><sheets>${ws.map((w,i)=>`<sheet name="${w}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`},
+  {name:'xl/_rels/workbook.xml.rels',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${ws.map((w,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId9" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`},
+  {name:'xl/styles.xml',data:styles},{name:'xl/worksheets/sheet1.xml',data:s1},{name:'xl/worksheets/sheet2.xml',data:s2},{name:'xl/worksheets/sheet3.xml',data:s3}])}
+function downloadTemplate(){const b=templateXlsx(),a=document.createElement('a'),u=URL.createObjectURL(b);a.href=u;a.download='Pedro_Harvest_Template_Despesas.xlsx';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);toast('Template baixado ✓ Preencha a aba “Despesas” e importe aqui.')}
+
+/* ---------- importação de planilha ---------- */
+const HMAP={date:h=>h.startsWith('data')&&!h.includes('prest'),city:h=>h.startsWith('cidade'),code:h=>h.includes('codigo harvest'),cat:h=>h.startsWith('categoria'),meal:h=>h.startsWith('refeicao'),qty:h=>h.includes('noites')||h.includes('diarias')||h.startsWith('quantidade'),people:h=>h.includes('pessoas'),plate:h=>h.startsWith('placa'),amount:h=>h.startsWith('valor'),holiday:h=>h.startsWith('feriado'),ben:h=>h.startsWith('beneficiario'),note:h=>h.startsWith('detalhamento')||h.startsWith('observ'),argo:h=>h.includes('argo')&&h.includes('lanc'),done:h=>h.startsWith('prestada')||h==='status',rid:h=>h.includes('prestacao')&&/^n/.test(h)};
+const yes=v=>['sim','s','x','yes','y','true','1','prestada','lancada','ok'].includes(norm(v));
+function cellDate(v){if(typeof v==='number'&&v>20000&&v<80000){const d=new Date(Date.UTC(1899,11,30)+Math.round(v)*864e5);return d.toISOString().slice(0,10)}
+ const s=String(v||'').trim();let m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);if(m){const y=m[3].length===2?'20'+m[3]:m[3];const r=y+'-'+pad(+m[2])+'-'+pad(+m[1]);return isDate(r)?r:null}
+ m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);return m&&isDate(m[0])?m[0]:null}
+const cellAmt=v=>typeof v==='number'?(v>0&&v<1e9?Math.round(v*100):null):parseAmt(v);
+const cellInt=v=>{const n=typeof v==='number'?Math.round(v):parseInt(String(v||'').trim(),10);return n>0?n:0};
+function matchCat(v){const s=String(v||'').trim();if(!s)return null;const m=s.toUpperCase().match(/HV[A-Z0-9]{4,}/);if(m){const c=db.categories.find(c=>c.code.toUpperCase()===m[0]||String(c.argoCode).toUpperCase()===m[0]);if(c)return c}
+ const n=norm(s.replace(/^HV[A-Z0-9]+\s*-\s*/i,''));return db.categories.find(c=>norm(c.name)===n)||db.categories.find(c=>norm(c.group+' '+c.name)===n)||null}
+function prepareImport(rows){const hi=rows.findIndex(r=>r.cells.some(v=>norm(v).startsWith('data'))&&r.cells.some(v=>norm(v).startsWith('valor')));
+ if(hi<0)throw Error('não encontrei a linha de títulos (Data, Cidade, Categoria, Valor…). Use o template do Pedro.');
+ const H=rows[hi].cells.map(norm),col={};for(const [k,f] of Object.entries(HMAP)){const i=H.findIndex(h=>h&&f(h));if(i>=0)col[k]=i}
+ if(col.code!=null)col.cat=col.code;const miss=['date','city','cat','amount'].filter(k=>col[k]==null);if(miss.length)throw Error('faltam colunas obrigatórias: '+miss.map(k=>({date:'Data',city:'Cidade',cat:'Categoria',amount:'Valor'})[k]).join(', '));
+ const ok=[],errors=[],warn=[];let dup=0;const key=e=>[e.date,e.categoryId,e.amount,norm(e.beneficiary),e.meal||'',e.qty||''].join('|'),seen=new Set(db.expenses.map(key));
+ const body=rows.slice(hi+1).filter(r=>r.cells.some(v=>String(v??'').trim()!==''));if(body.length>3000)throw Error('limite de 3.000 linhas por arquivo');
+ for(const r of body){const g=k=>col[k]==null?'':r.cells[col[k]]??'',c=matchCat(g('cat')),P=[];
+  const date=cellDate(g('date'));if(!date)P.push('data inválida');if(!c)P.push(String(g('cat')).trim()?'categoria não encontrada: '+String(g('cat')).slice(0,40):'categoria vazia');
+  if(P.length){errors.push({n:r.n,m:P.join('; ')});continue}
+  const qr=qtyRule(c),qty=qr?(cellInt(g('qty'))||1):undefined;let amount=cellAmt(g('amount'));
+  if(c.rule==='perdiem'&&c.limit&&c.mode!=='none'&&!amount)amount=c.limit*qty;
+  const done=yes(g('done')),x={id:'',categoryId:c.id,date,city:String(g('city')).trim(),qty,meal:c.rule==='meal'?(norm(g('meal')).startsWith('alm')?'Almoço':'Jantar'):undefined,holiday:yes(g('holiday')),amount,beneficiary:String(g('ben')).trim()||db.profile.name,note:String(g('note')).trim(),plate:String(g('plate')).trim().toUpperCase(),people:cellInt(g('people'))||undefined,status:done?'prestada':'pendente',reportId:done?String(g('rid')).trim():'',reportDate:done?TODAY():'',argo:yes(g('argo'))};
+  if(String(g('amount')).trim()!==''&&!amount&&c.rule!=='perdiem'){errors.push({n:r.n,m:'valor inválido'});continue}
+  const {E,W}=check(x);if(E.length){errors.push({n:r.n,m:E[0].replace('marque “É feriado”','preencha Feriado? = Sim')});continue}
+  const k=key(x);if(seen.has(k)){dup++;continue}seen.add(k);if(W.length)warn.push({n:r.n,m:W[0]});ok.push(x)}
+ return{ok,errors,warn,dup,total:body.length}}
+async function importSheet(file){try{if(file.size>10*1024*1024)throw Error('arquivo acima de 10 MB');const nm=file.name.toLowerCase();let rows;
+  if(nm.endsWith('.xlsx')||nm.endsWith('.xlsm'))rows=await readXlsx(await file.arrayBuffer());else if(nm.endsWith('.csv')||nm.endsWith('.txt'))rows=readCsvRows(await file.text());else if(nm.endsWith('.xls'))throw Error('formato .xls antigo: no Excel use Salvar como → Pasta de Trabalho (.xlsx)');else throw Error('envie um arquivo .xlsx ou .csv');
+  const R=prepareImport(rows),tot=sum(R.ok);
+  const f=openModal('Importar despesas da planilha',`<form><p class="help" style="margin-top:0">Arquivo: <b>${esc(file.name)}</b> · ${R.total} linha(s) preenchida(s). Nada é gravado até você confirmar.</p>
+  <div class="cards" style="grid-template-columns:repeat(3,1fr);margin:10px 0">${card('Prontas',String(R.ok.length),money(tot),'✅','#0A7350')}${card('Com erro',String(R.errors.length),'Serão ignoradas','⛔','#D15C66')}${card('Duplicadas',String(R.dup),'Já existem','♻️','#835FBD')}</div>
+  ${R.errors.length?`<div class="notice err"><b>Linhas com erro (corrija na planilha e importe de novo):</b><br>${R.errors.slice(0,15).map(e=>`Linha ${e.n}: ${esc(e.m)}`).join('<br>')}${R.errors.length>15?`<br>… e mais ${R.errors.length-15}.`:''}</div>`:''}
+  ${R.warn.length?`<div class="notice warn"><b>Avisos (serão importadas):</b><br>${R.warn.slice(0,8).map(e=>`Linha ${e.n}: ${esc(e.m)}`).join('<br>')}${R.warn.length>8?`<br>… e mais ${R.warn.length-8}.`:''}</div>`:''}
+  ${R.ok.length?`<div class="blist" style="max-height:30vh">${R.ok.slice(0,40).map(e=>`<div class="bitem" style="grid-template-columns:1fr auto;cursor:default"><span>${dateFmt(e.date)} · ${icon(cat(e.categoryId))} ${esc(cat(e.categoryId).name)} · ${esc(e.city)}</span><b>${money(e.amount)}</b></div>`).join('')}${R.ok.length>40?`<div class="help" style="padding:6px 8px">… e mais ${R.ok.length-40}.</div>`:''}</div>`:''}
+  <div class="formfooter" style="margin-top:14px"><button class="btn" type="button" data-act="cancel">Cancelar</button><button class="btn primary" type="submit" ${R.ok.length?'':'disabled'}>⬆ Importar ${R.ok.length} despesa(s)</button></div></form>`,()=>{
+   if(!R.ok.length)return;const now=new Date().toISOString(),add=R.ok.map(x=>({...x,id:uid(),createdAt:now})),old=db.expenses;db.expenses=[...db.expenses,...add];if(!persist()){db.expenses=old;return}
+   closeModal(true);navigate('home');toast(`${add.length} despesa(s) importada(s) · ${money(sum(add))} ✓`,5000)})}
+ catch(err){toast('Não foi possível importar: '+err.message,6000)}}
+
+/* ---------- Despesas ---------- */
+function expItem(e){const c=cat(e.categoryId),p=e.status==='prestada';
+ const det=[esc(e.city),qtyRule(c)?`${e.qty} ${qtyWord(c,e.qty)}`:'',c?.rule==='meal'&&e.meal?esc(e.meal):'',e.beneficiary&&norm(e.beneficiary)!==norm(db.profile.name)?'👤 '+esc(e.beneficiary):'',e.note?esc(e.note):''].filter(Boolean).join(' · ');
+ return `<div class="exp"><div class="eico">${icon(c)}</div><div><div class="et"><strong>${esc(c?.name||'Categoria removida')}</strong><span class="code">${esc(c?.code||'')}</span></div><small>${dateFmt(e.date)} · ${det}</small></div>
+ <div class="eamt"><strong>${money(e.amount)}</strong><span class="pill ${p?'ok':'wait'}">${p?'✓ Prestada no Argo'+(e.reportId?' · '+esc(e.reportId):''):'⏳ A prestar'}</span></div>
+ <div class="eact"><button class="ib ${p?'ok':''}" data-act="toggle" data-id="${esc(e.id)}" title="${p?'Desfazer prestação':'Marcar como prestada no Argo'}">✓</button><button class="ib" data-act="copy" data-id="${esc(e.id)}" title="Copiar descrição para o Argo">📋</button><button class="ib" data-act="editExp" data-id="${esc(e.id)}" title="Editar">✎</button><button class="ib danger" data-act="delExp" data-id="${esc(e.id)}" title="Excluir">🗑</button></div></div>`}
+function filtered(){const q=norm(F.q),now=TODAY(),m=now.slice(0,7),pm=(()=>{const d=new Date(now+'T12:00:00');d.setDate(1);d.setMonth(d.getMonth()-1);return iso(d).slice(0,7)})(),w=dnum(now)-6;
+ return db.expenses.filter(e=>{const c=cat(e.categoryId);if(F.status!=='all'&&(F.status==='prestada')!==(e.status==='prestada'))return false;if(F.group&&c?.group!==F.group)return false;
+  if(F.period==='month'&&e.date.slice(0,7)!==m)return false;if(F.period==='prev'&&e.date.slice(0,7)!==pm)return false;if(F.period==='week'&&dnum(e.date)<w)return false;
+  return !q||norm([c?.name,c?.code,c?.argoCode,e.city,e.beneficiary,e.note,e.reportId].join(' ')).includes(q)}).sort(byDate)}
+function renderExpenses(){const groups=[...new Set(db.categories.map(c=>c.group))].sort(gsort),l=filtered();let html='',last='';
+ l.forEach(e=>{if(e.date!==last){last=e.date;const tot=sum(l.filter(x=>x.date===e.date)),h=natHoliday(e.date);html+=`<div class="dhead"><span>${WD[new Date(e.date+'T12:00:00').getDay()]}, ${dateFmt(e.date)}${h?' · 🎌 '+esc(h):''}</span><span>${money(tot)}</span></div>`}html+=expItem(e)});
+ const pend=l.filter(e=>e.status!=='prestada').length;
+ $('#expContent').innerHTML=`<div class="panel"><div class="filters"><div class="seg">${[['all','Todas'],['pendente','A prestar'],['prestada','Prestadas no Argo']].map(([v,t])=>`<button data-fst="${v}" class="${F.status===v?'on':''}">${t}</button>`).join('')}</div>
+ <select id="fGroup" aria-label="Categoria"><option value="">Todas as categorias</option>${groups.map(g=>`<option ${F.group===g?'selected':''}>${esc(g)}</option>`).join('')}</select>
+ <select id="fPeriod" aria-label="Período">${[['all','Todo o período'],['week','Últimos 7 dias'],['month','Este mês'],['prev','Mês passado']].map(([v,t])=>`<option value="${v}" ${F.period===v?'selected':''}>${t}</option>`).join('')}</select>
+ <input type="search" id="fQ" placeholder="🔎 Buscar cidade, código, beneficiário..." value="${esc(F.q)}"></div>
+ <div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="help"><b>${l.length}</b> despesa(s) · <b>${money(sum(l))}</b>${pend?` · ${pend} a prestar`:''}</span><div class="row">${pend?'<button class="btn small primary" data-act="batch">✓ Prestar conta em lote</button>':''}<button class="btn small" data-act="tpl">⬇ Template Excel</button><button class="btn small" data-act="upSheet">⬆ Importar planilha</button><button class="btn small" data-act="csv">⬇ Exportar CSV</button></div></div>
+ ${l.length?`<div class="list">${html}</div>`:`<div class="empty">${db.expenses.length?'Nenhuma despesa neste filtro.':'Nenhuma despesa lançada. Toque em “＋ Nova despesa” ou importe uma planilha consolidada (⬆ Importar planilha).'}</div>`}</div>`;
+ $('#fGroup').onchange=e=>{F.group=e.target.value;renderExpenses()};$('#fPeriod').onchange=e=>{F.period=e.target.value;renderExpenses()};
+ $('#fQ').oninput=e=>{F.q=e.target.value;clearTimeout(renderExpenses.t);renderExpenses.t=setTimeout(()=>{const pos=e.target.selectionStart;renderExpenses();const q=$('#fQ');q.focus();try{q.setSelectionRange(pos,pos)}catch(_){}},250)}}
+
+/* ---------- Adiantamentos ---------- */
+function renderAdvances(){const t=totals(),l=[...db.advances].sort(byDate);
+ $('#advContent').innerHTML=`<div class="cards" style="margin-top:0">${card('Recebido',money(t.rec),`${db.advances.filter(a=>a.type!=='devolucao').length} adiantamento(s)`,'💰','#2F6FD6')}${card('Devolvido',money(t.dev),'Saldos devolvidos','↩️','#835FBD')}${card('Prestado no Argo',money(t.done),`${t.pctDone.toFixed(0)}% do recebido · lançado ${money(t.spent)}`,'✅','#0F8A5F')}${card('Em seu poder',money(t.hand),'Recebido − devolvido − prestado no Argo','👛',t.hand<0?'#D15C66':'#0A7350')}</div>
+ <div class="panel"><div class="panelhead"><div><h2>Movimentações</h2><p>Padrão: ${money(db.settings.defaultAdvance)} · ao atingir ${db.settings.alertPct}% de consumo, solicite novo adiantamento.</p></div><button class="btn primary" data-act="newAdv">＋ Registrar</button></div>
+ ${l.length?`<div class="list">${l.map(a=>{const d=a.type==='devolucao';return `<div class="listitem"><span><strong>${d?'↩️ Devolução de saldo':'💰 Adiantamento recebido'}</strong><small>${dateFmt(a.date)}${a.note?' · '+esc(a.note):''}</small></span><span class="row"><strong style="color:${d?'var(--red)':'var(--pri)'}">${d?'−':'+'} ${money(a.amount)}</strong><button class="ib" data-act="editAdv" data-id="${esc(a.id)}" title="Editar">✎</button><button class="ib danger" data-act="delAdv" data-id="${esc(a.id)}" title="Excluir">🗑</button></span></div>`}).join('')}</div>`:'<div class="empty">Nenhum adiantamento registrado.</div>'}</div>`}
+
+/* ---------- Glossário ---------- */
+function renderGlossary(){const q=norm(gq),groups=[...new Set(db.categories.map(c=>c.group))].sort(gsort);
+ const list=db.categories.filter(c=>!q||norm(Object.values(c).join(' ')).includes(q));
+ const used=id=>db.expenses.filter(e=>e.categoryId===id).length;
+ $('#glossContent').innerHTML=`${editMode?`<div class="editbar"><span>✏️ Modo edição ativo — as alterações valem para os próximos lançamentos neste aparelho.</span><span class="row"><button class="btn small" data-act="newCat">＋ Nova categoria</button><button class="btn small" data-act="resetCats">↺ Restaurar padrão</button><button class="btn small primary" data-act="editOff">🔒 Concluir edição</button></span></div>`:''}
+ <div class="filters"><input type="search" id="gQ" placeholder="🔎 Buscar categoria ou código (ex.: HVCPRREF, pedágio)" value="${esc(gq)}">${editMode?'':'<button class="btn" data-act="editOn">✏️ Editar glossário</button>'}</div>
+ ${groups.map(g=>{const it=list.filter(c=>c.group===g);if(!it.length)return'';return `<div class="gcat"><h3>${GICON[g]||'🧾'} ${esc(g)}</h3><div class="ggrid">${it.map(c=>`<div class="gitem"><div class="gh"><strong>${esc(c.name)}</strong><span class="row"><span class="code" title="Código Harvest">${esc(c.code)}</span><span class="code" title="Incluir na descrição do Argo">${esc(c.argoCode)}</span></span></div>
+ <p><b>Tipo Argo:</b> ${esc(c.argoType||'—')} · <b>${limitText(c)}</b>${c.rule!=='none'?' · '+esc(RULES[c.rule]||''):''}</p>${c.application?`<p>${esc(c.application)}</p>`:''}${c.detail?`<p><b>No Argo:</b> ${esc(c.detail)}</p>`:''}<p><b>Modelo da descrição:</b> <span class="code" style="white-space:normal">${esc(tplOf(c))}</span></p>
+ ${editMode?`<div class="row" style="justify-content:flex-end"><small class="muted" style="margin-right:auto">${used(c.id)} uso(s)</small><button class="btn small" data-act="editCat" data-id="${esc(c.id)}">✎ Editar</button><button class="btn small danger" data-act="delCat" data-id="${esc(c.id)}">🗑</button></div>`:''}</div>`).join('')}</div></div>`}).join('')||'<div class="empty">Nenhuma categoria encontrada.</div>'}`;
+ $('#gQ').oninput=e=>{gq=e.target.value;clearTimeout(renderGlossary.t);renderGlossary.t=setTimeout(()=>{const p=e.target.selectionStart;renderGlossary();const x=$('#gQ');x.focus();try{x.setSelectionRange(p,p)}catch(_){}},250)}}
+
+/* ---------- Configurações ---------- */
+function renderSettings(){const p=db.profile,s=db.settings;
+ $('#setContent').innerHTML=`<div class="grid2"><div class="panel"><div class="panelhead"><h2>👤 Meu perfil</h2><button class="btn small" data-act="editProfile">✎ Editar</button></div><div class="kv"><span>Nome</span><b>${esc(p.name||'—')}</b><span>Função</span><b>${esc(p.role||'—')}</b><span>Cidade de origem</span><b>${esc(p.homeCity||'—')}</b></div><p class="help" style="margin-top:12px">O nome entra como beneficiário padrão das despesas. A cidade de origem ajuda a alertar perdiem lançado na própria cidade.</p></div>
+ <div class="panel"><div class="panelhead"><h2>🎯 Parâmetros</h2><button class="btn small" data-act="editParams">✎ Editar</button></div><div class="kv"><span>Adiantamento padrão</span><b>${money(s.defaultAdvance)}</b><span>Alerta de novo adiantamento</span><b>${s.alertPct}% de consumo</b></div><p class="help" style="margin-top:12px">Limites e regras de cada despesa (perdiem, refeição, lavanderia, hospedagem…) ficam no <a href="#" data-goto="glossary">Glossário</a>.</p></div></div>
+ <button class="btn" data-page="glossary" style="width:100%;margin-bottom:16px">📖 Abrir o Glossário de despesas (códigos, limites e modelos do Argo)</button>
+ <div class="grid2"><div class="panel"><h2>💾 Dados e backup</h2><p class="muted">Os dados ficam somente neste aparelho/navegador. Faça backup com frequência e use-o para levar seus dados a outro aparelho.</p><div class="row" style="margin-top:12px"><button class="btn" data-act="tpl">⬇ Template Excel</button><button class="btn" data-act="upSheet">⬆ Importar planilha</button><button class="btn" data-act="csv">⬇ Exportar despesas (CSV)</button><button class="btn" data-act="backup">⬇ Backup JSON</button><button class="btn" data-act="restore">⬆ Importar backup</button><input type="file" id="importJson" accept=".json,application/json" hidden></div><hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><button class="btn danger" data-act="wipe">🗑 Apagar todos os dados deste aparelho</button></div>
+ <div class="panel"><h2>📲 Aplicativo</h2><p class="help" id="pwaStatus" style="margin:6px 0 10px">Verificando…</p><p class="help">Celular Android: Chrome → ⋮ → Instalar app. iPhone: Safari → Compartilhar → Adicionar à Tela de Início. Computador: botão “Instalar Pedro” ou ícone de instalar na barra de endereço.</p><button class="btn" id="installBtn2" hidden>📲 Instalar Pedro</button></div></div>`;
+ window.dispatchEvent(new Event('pedro-settings'))}
+
+/* ---------- modal ---------- */
+let modalLocked=false;
+function openModal(title,body,onSubmit,locked){modalLocked=!!locked;$('#modalTitle').textContent=title;$('#modalBody').innerHTML=body;$('#closeModal').hidden=modalLocked;$('#modalBack').classList.add('show');
+ const f=$('#modalBody form');if(f)f.addEventListener('submit',e=>{e.preventDefault();onSubmit(f,e.submitter&&e.submitter.name==='again')});
+ setTimeout(()=>{const x=$('#modalBody [autofocus]');if(x&&matchMedia('(min-width:761px)').matches)x.focus()},60);return f}
+function closeModal(force){if(modalLocked&&!force)return;modalLocked=false;$('#modalBack').classList.remove('show');$('#modalBody').innerHTML=''}
+const footer=(label,extra)=>`<div class="full formfooter">${modalLocked?'':'<button class="btn" type="button" data-act="cancel">Cancelar</button>'}${extra||''}<button class="btn primary" type="submit">${label||'Salvar'}</button></div>`;
+const chips=(name,arr,val)=>`<input type="hidden" name="${name}" value="${esc(val)}"><div class="chips" data-chips="${name}">${arr.map(([v,t])=>`<button type="button" data-v="${esc(v)}" class="${v===val?'on':''}">${t}</button>`).join('')}</div>`;
+
+/* ---------- Formulário de despesa ---------- */
+function expenseForm(id,seed){const x=id?db.expenses.find(e=>e.id===id):null;if(id&&!x)return;
+ if(!db.categories.length)return toast('Cadastre categorias no Glossário antes de lançar despesas.');
+ let cId=x?.categoryId||seed?.categoryId||PREF.lastCat;if(!cat(cId))cId=(cat('HVCPRREF')||db.categories[0]).id;
+ const usage={};db.expenses.forEach(e=>usage[e.categoryId]=(usage[e.categoryId]||0)+1);
+ const favs=[...new Set([...Object.keys(usage).sort((a,b)=>usage[b]-usage[a]),...FAV])].filter(cat).slice(0,6).map(cat);
+ const groups=[...new Set(db.categories.map(c=>c.group))].sort(gsort);
+ const cities=[...new Set(db.expenses.map(e=>e.city).filter(Boolean))].slice(-60);
+ const f=openModal(id?'Editar despesa':'Nova despesa',`<form class="formgrid" autocomplete="off" novalidate>
+ <div class="field full"><label>Categoria da despesa</label><div class="chips" id="favChips">${favs.map(c=>`<button type="button" data-cat="${esc(c.id)}">${icon(c)} ${esc(c.name)}</button>`).join('')}</div>
+ <select name="categoryId" aria-label="Todas as categorias">${groups.map(g=>`<optgroup label="${esc(g)}">${db.categories.filter(c=>c.group===g).map(c=>`<option value="${esc(c.id)}" ${c.id===cId?'selected':''}>${esc(c.name)} — ${esc(c.code)}</option>`).join('')}</optgroup>`).join('')}</select></div>
+ <div class="full catinfo" id="catInfo"></div>
+ <div class="field full"><label>Valor da despesa</label><div class="bigamount"><span>R$</span><input name="amount" inputmode="decimal" placeholder="0,00" autofocus value="${x?fmtAmt(x.amount):''}"></div><small class="help" id="limInfo"></small></div>
+ <div class="field"><label>Data</label><input type="date" name="date" value="${esc(x?.date||seed?.date||TODAY())}"><div class="quick"><button type="button" data-qd="0">Hoje</button><button type="button" data-qd="-1">Ontem</button><button type="button" data-qd="-2">Anteontem</button></div><small class="help" id="dayInfo"></small></div>
+ <div class="field"><label>Cidade</label><input name="city" maxlength="80" list="cityList" placeholder="Ex.: Santa Maria/RS" value="${esc(x?.city||seed?.city||PREF.lastCity||'')}"><datalist id="cityList">${cities.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div>
+ <div class="field" id="fQty"><label id="qtyLbl">Nº de noites</label><input name="qty" type="number" inputmode="numeric" min="1" max="90" step="1" value="${esc(x?.qty||1)}"></div>
+ <div class="field" id="fMeal"><label>Refeição</label>${chips('meal',[['Jantar','🌙 Jantar'],['Almoço','☀️ Almoço']],x?.meal||'Jantar')}</div>
+ <div class="field" id="fHol"><label>&nbsp;</label><label class="chk"><input type="checkbox" name="holiday" ${x?.holiday?'checked':''}> É feriado (local ou nacional)</label></div>
+ <div class="field" id="fPlate"><label>Placa do veículo</label><input name="plate" maxlength="10" placeholder="ABC1D23" style="text-transform:uppercase" value="${esc(x?.plate||'')}"></div>
+ <div class="field" id="fPeople"><label>Nº de pessoas</label><input name="people" type="number" inputmode="numeric" min="1" max="500" value="${esc(x?.people||1)}"></div>
+ <div class="field"><label>Beneficiário</label><input name="beneficiary" maxlength="80" value="${esc(x?.beneficiary||db.profile.name)}"></div>
+ <div class="field"><label>Prestação de contas</label><label class="chk"><input type="checkbox" name="done" ${x?.status==='prestada'?'checked':''}> Já prestei conta no Argo</label><input name="reportId" maxlength="40" placeholder="Nº da prestação (opcional)" value="${esc(x?.reportId||'')}"></div>
+ <div class="field full"><label id="noteLbl">Detalhamento para o Argo</label><textarea name="note" rows="2" maxlength="300">${esc(x?.note||'')}</textarea></div>
+ <div class="full" id="valBox"></div>
+ ${footer(id?'Salvar alterações':'Salvar despesa',id?'':'<button class="btn" type="submit" name="again" value="1">Salvar e lançar outra</button>')}</form>`,(form,again)=>{
+  const d=draft(form,x),{E,W}=check(d);if(E.length){update(form,x);toast(E[0],5000);return}
+  if(W.length&&!confirm('Atenção:\n\n• '+W.join('\n• ')+'\n\nSalvar mesmo assim?'))return;
+  const v={...d,id:x?.id||uid(),createdAt:x?.createdAt||new Date().toISOString(),reportDate:d.status==='prestada'?(x?.reportDate||TODAY()):''};
+  if(x)db.expenses=db.expenses.map(e=>e.id===x.id?v:e);else db.expenses.push(v);if(!persist())return;
+  PREF.lastCat=v.categoryId;PREF.lastCity=v.city;savePref();closeModal(true);render();
+  if(again){toast('Despesa lançada ✓ '+money(v.amount)+' · texto do Argo disponível na aba Argo');setTimeout(()=>expenseForm(null,{date:v.date,city:v.city,categoryId:v.categoryId}),150)}
+  else argoDone(v,!x)});
+ f.addEventListener('input',()=>update(f,x));f.addEventListener('change',()=>update(f,x));
+ f.addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(b){f.categoryId.value=b.dataset.cat;update(f,x);if(!cat(b.dataset.cat)?.rule||cat(b.dataset.cat).rule!=='perdiem')f.amount.focus()}});
+ update(f,x)}
+function draft(f,x){const c=cat(f.categoryId.value),qty=qtyRule(c)?Math.max(0,parseInt(f.qty.value,10)||0):undefined;
+ let amount=parseAmt(f.amount.value);if(c?.rule==='perdiem'&&c.limit&&c.mode!=='none')amount=qty?c.limit*qty:null;
+ return{id:x?.id||'',categoryId:f.categoryId.value,date:f.date.value,city:f.city.value.trim(),qty,meal:c?.rule==='meal'?f.meal.value:undefined,holiday:f.holiday.checked,amount,beneficiary:f.beneficiary.value.trim()||db.profile.name,note:f.note.value.trim(),plate:tplHas(c,'placa')?f.plate.value.trim().toUpperCase():'',people:tplHas(c,'pessoas')?Math.max(0,parseInt(f.people.value,10)||0):undefined,status:f.done.checked?'prestada':'pendente',reportId:f.done.checked?f.reportId.value.trim():''}}
+function update(f,x){const c=cat(f.categoryId.value);if(!c)return;
+ $$('#favChips [data-cat]').forEach(b=>b.classList.toggle('on',b.dataset.cat===c.id));
+ $('#catInfo').innerHTML=`<div class="ci"><strong>${icon(c)} ${esc(c.name)}</strong><span class="code" title="Código Harvest">${esc(c.code)}</span><span class="code" title="Incluir na descrição do Argo">Argo: ${esc(c.argoCode)}</span><span class="pill">${esc(c.argoType||'—')}</span><span class="pill ${c.limit&&c.mode!=='none'?'wait':''}">${limitText(c)}</span></div>${c.rule!=='none'?`<p>📌 ${esc(RULES[c.rule])}</p>`:''}${c.application?`<details><summary class="help" style="cursor:pointer">Quando usar esta categoria</summary><p style="margin-top:4px">${esc(c.application)}</p></details>`:''}`;
+ const meal=c.rule==='meal'||c.rule==='mealWeekend',qr=qtyRule(c),pd=c.rule==='perdiem'&&c.limit&&c.mode!=='none';
+ $('#fQty').style.display=qr?'':'none';$('#qtyLbl').textContent=c.rule==='perdiem'?'Nº de noites dormidas fora':'Nº de diárias';
+ $('#fMeal').style.display=c.rule==='meal'?'':'none';$('#fHol').style.display=meal?'':'none';
+ const ds=f.date.value,h=natHoliday(ds);$('#dayInfo').textContent=isDate(ds)?WD[new Date(ds+'T12:00:00').getDay()]+(h?' · 🎌 '+h:isWeekend(ds)?' · fim de semana':''):'';
+ const wasRO=f.amount.readOnly;f.amount.readOnly=!!pd;if(wasRO&&!pd)f.amount.value='';if(pd){const q=parseInt(f.qty.value,10)||0;f.amount.value=q?fmtAmt(c.limit*q):''}
+ $('#limInfo').textContent=pd?`Calculado automaticamente: ${money(c.limit)} × nº de noites. A data deve ser a do primeiro dia do período.`:(c.limit&&c.mode!=='none'?limitText(c)+(qr?' (multiplicado pelo nº de diárias)':''):'');
+ f.note.placeholder=c.detail||'Informações para a descrição no Argo';
+ $('#fPlate').style.display=tplHas(c,'placa')?'':'none';$('#fPeople').style.display=tplHas(c,'pessoas')?'':'none';
+ $('#noteLbl').textContent=tplHas(c,'detalhe')?'Detalhamento para o Argo (entra na descrição)':'Observação (opcional)';
+ f.reportId.style.display=f.done.checked?'':'none';
+ const d=draft(f,x),touched=f.amount.value||x;const {E,W}=check(d);const shown=touched?E:E.filter(m=>!/Informe/.test(m));
+ $('#valBox').innerHTML=(shown.length?`<div class="notice err" style="margin:0 0 6px">⛔ ${shown.map(esc).join('<br>⛔ ')}</div>`:'')+(W.length?`<div class="notice warn" style="margin:0 0 6px">⚠️ ${W.map(esc).join('<br>⚠️ ')}</div>`:'')+(!E.length&&d.amount?`<div class="notice" style="margin:0">✅ Tudo certo · Texto para o Argo:<br><code style="font-size:12.5px;word-break:break-word">${esc(argoDesc(d))}</code></div>`:'')}
+
+function argoDone(e,isNew){const c=cat(e.categoryId)||{},t=argoDesc(e);
+ openModal(isNew?'Despesa lançada ✓':'Despesa atualizada ✓',`<div style="display:grid;gap:14px"><div class="listitem"><span><strong>${icon(c)} ${esc(c.name||'')}</strong><small>${dateFmt(e.date)} · ${esc(e.city)}</small></span><strong>${money(e.amount)}</strong></div>
+ <div><div class="help" style="margin-bottom:6px">📝 <b>Texto para a descrição no Argo</b></div><div class="argobox">${esc(t)}</div></div>
+ <div class="kv" style="grid-template-columns:150px 1fr"><span>Tipo Argo</span><b>${esc(c.argoType||'—')}</b><span>Valor</span><b>${money(e.amount)}</b><span>Data</span><b>${dateFmt(e.date)}</b></div>
+ <div class="formfooter"><button class="btn" type="button" data-act="cancel">Fechar</button><button class="btn" type="button" data-act="newExp">＋ Lançar outra</button><button class="btn primary" type="button" data-act="copyTxt" data-txt="${esc(t)}">📋 Copiar texto</button></div></div>`)}
+
+/* ---------- aba Argo ---------- */
+let AF='pend';
+function renderArgo(){const all=[...db.expenses].sort((a,b)=>a.date.localeCompare(b.date)),l=all.filter(e=>AF==='all'||(AF==='pend'?!e.argo:!!e.argo)),nP=all.filter(e=>!e.argo).length;
+ $('#argoContent').innerHTML=`<div class="notice">📝 Para cada despesa, o Pedro monta a <b>descrição do Argo</b> no padrão do projeto (código + detalhamento). Copie, cole no Argo e marque como <b>lançada</b>. O modelo de cada categoria pode ser ajustado no Glossário (modo edição).</div>
+ <div class="panel"><div class="filters"><div class="seg">${[['pend',`A lançar (${nP})`],['done','Lançadas'],['all','Todas']].map(([v,t])=>`<button data-af="${v}" class="${AF===v?'on':''}">${t}</button>`).join('')}</div>${l.length?'<button class="btn small" data-act="copyAll">📋 Copiar todas as listadas</button>':''}</div>
+ ${l.length?`<div class="list">${l.map(e=>{const c=cat(e.categoryId)||{},t=argoDesc(e);return `<div class="gitem"><div class="gh"><span><strong>${icon(c)} ${esc(c.name||'Categoria removida')}</strong> <span class="code">${esc(c.argoCode||'')}</span><small class="muted" style="display:block">${dateFmt(e.date)} · ${esc(e.city)} · Tipo Argo: ${esc(c.argoType||'—')}</small></span><strong>${money(e.amount)}</strong></div>
+ <div class="argobox">${esc(t)}</div><div class="row" style="justify-content:flex-end"><span class="pill ${e.argo?'ok':'wait'}" style="margin-right:auto">${e.argo?'✓ Lançada no Argo':'⏳ Não lançada'}</span><button class="btn small" data-act="editExp" data-id="${esc(e.id)}">✎ Editar</button><button class="btn small" data-act="copyTxt" data-txt="${esc(t)}">📋 Copiar</button><button class="btn small ${e.argo?'':'primary'}" data-act="argoMark" data-id="${esc(e.id)}">${e.argo?'Desfazer':'✓ Lançada'}</button></div></div>`}).join('')}</div>`:`<div class="empty">${db.expenses.length?(AF==='pend'?'Todas as despesas já foram lançadas no Argo. 🎉':'Nada neste filtro.'):'Nenhuma despesa lançada ainda.'}</div>`}</div>`}
+
+/* ---------- prestação em lote ---------- */
+function batchForm(){const pend=db.expenses.filter(e=>e.status!=='prestada').sort((a,b)=>a.date.localeCompare(b.date));if(!pend.length)return toast('Nenhuma despesa pendente de prestação.');
+ const f=openModal('Prestar conta das despesas',`<form class="formgrid"><p class="help full" style="margin:0">Marque as despesas que entraram na prestação de contas enviada no Argo.</p>
+ <div class="field"><label>Nº / identificação da prestação (opcional)</label><input name="reportId" maxlength="40" placeholder="Ex.: PC-1234"></div><div class="field"><label>Data de envio</label><input type="date" name="reportDate" value="${TODAY()}"></div>
+ <label class="chk full"><input type="checkbox" id="chkAll" checked> Selecionar todas (${pend.length})</label>
+ <div class="blist full">${pend.map(e=>`<label class="bitem"><input type="checkbox" name="ids" value="${esc(e.id)}" checked><span>${dateFmt(e.date)} · ${icon(cat(e.categoryId))} ${esc(cat(e.categoryId)?.name||'—')} · ${esc(e.city)}</span><b>${money(e.amount)}</b></label>`).join('')}</div>
+ <div class="full help" id="bTot"></div>${footer('✓ Marcar como prestadas')}</form>`,form=>{const ids=new FormData(form).getAll('ids');if(!ids.length)return toast('Selecione ao menos uma despesa.');
+  const rid=form.reportId.value.trim(),rd=isDate(form.reportDate.value)?form.reportDate.value:TODAY();db.expenses.forEach(e=>{if(ids.includes(e.id)){e.status='prestada';e.reportId=rid;e.reportDate=rd}});
+  if(!persist())return;closeModal(true);render();toast(`${ids.length} despesa(s) marcada(s) como prestada(s) ✓`)});
+ const upd=()=>{const ids=new FormData(f).getAll('ids'),v=sum(pend.filter(e=>ids.includes(e.id)));$('#bTot').innerHTML=`<b>${ids.length}</b> selecionada(s) · <b>${money(v)}</b>`;$('#chkAll').checked=ids.length===pend.length};
+ f.addEventListener('change',e=>{if(e.target.id==='chkAll')$$('#modalBody input[name=ids]').forEach(i=>i.checked=e.target.checked);upd()});upd()}
+
+/* ---------- adiantamento ---------- */
+function advanceForm(id){const x=id?db.advances.find(a=>a.id===id):null;if(id&&!x)return;
+ openModal(id?'Editar movimentação':'Registrar adiantamento',`<form class="formgrid"><div class="field full"><label>Tipo</label>${chips('type',[['recebido','💰 Adiantamento recebido'],['devolucao','↩️ Devolução de saldo']],x?.type||'recebido')}</div>
+ <div class="field full"><label>Valor</label><div class="bigamount"><span>R$</span><input name="amount" inputmode="decimal" autofocus value="${fmtAmt(x?x.amount:db.settings.defaultAdvance)}"></div></div>
+ <div class="field"><label>Data</label><input type="date" name="date" value="${esc(x?.date||TODAY())}"></div><div class="field"><label>Observação (opcional)</label><input name="note" maxlength="120" placeholder="Ex.: 2º adiantamento" value="${esc(x?.note||'')}"></div>${footer()}</form>`,f=>{
+  const amount=parseAmt(f.amount.value),date=f.date.value;if(!amount||!isDate(date))return toast('Confira valor e data.');
+  const v={id:x?.id||uid(),type:f.type.value==='devolucao'?'devolucao':'recebido',amount,date,note:f.note.value.trim(),createdAt:x?.createdAt||new Date().toISOString()};
+  if(x)db.advances=db.advances.map(a=>a.id===x.id?v:a);else db.advances.push(v);if(!persist())return;closeModal(true);render();toast((v.type==='devolucao'?'Devolução registrada: ':'Adiantamento registrado: ')+money(amount))})}
+
+/* ---------- categoria (modo edição) ---------- */
+function categoryForm(id){const c=id?cat(id):null;if(id&&!c)return;const groups=[...new Set(db.categories.map(c=>c.group))].sort(gsort);
+ openModal(c?'Editar categoria':'Nova categoria',`<form class="formgrid">
+ <div class="field"><label>Categoria (grupo)</label><input name="group" list="grpList" required maxlength="40" value="${esc(c?.group||'')}"><datalist id="grpList">${groups.map(g=>`<option value="${esc(g)}">`).join('')}</datalist></div>
+ <div class="field"><label>Tipo Despesa PMO (nome)</label><input name="name" required maxlength="60" value="${esc(c?.name||'')}"></div>
+ <div class="field"><label>Código Harvest (Consultores)</label><input name="code" required maxlength="20" value="${esc(c?.code||'')}" style="text-transform:uppercase"></div>
+ <div class="field"><label>Código para a descrição do Argo</label><input name="argoCode" maxlength="20" value="${esc(c?.argoCode||'')}" style="text-transform:uppercase"></div>
+ <div class="field"><label>Despesa BI</label><input name="bi" maxlength="60" value="${esc(c?.bi||'')}"></div>
+ <div class="field"><label>Tipo Argo</label><input name="argoType" maxlength="60" value="${esc(c?.argoType||'')}"></div>
+ <div class="field"><label>Limite (R$) — vazio = sem limite</label><input name="limit" inputmode="decimal" value="${c?.limit?fmtAmt(c.limit):''}"></div>
+ <div class="field"><label>Tipo de limite</label><select name="mode">${Object.entries(MODES).map(([k,v])=>`<option value="${k}" ${(c?.mode||'none')===k?'selected':''}>${v}</option>`).join('')}</select></div>
+ <div class="field full"><label>Modelo da descrição do Argo</label><input name="template" maxlength="200" value="${esc(c?.template||GEN_TPL)}"><small class="help">Use: ${Object.entries(PH).map(([k,v])=>`<span class="code" title="${esc(v)}">{${k}}</span>`).join(' ')} · separe as partes com “ - ”. Partes sem informação são omitidas.</small><div class="argobox" id="tplPrev" style="margin-top:4px"></div></div>
+ <div class="field full"><label>Regra especial</label><select name="rule">${Object.entries(RULES).map(([k,v])=>`<option value="${k}" ${(c?.rule||'none')===k?'selected':''}>${v}</option>`).join('')}</select></div>
+ <div class="field full"><label>Aplicação</label><textarea name="application" rows="2" maxlength="600">${esc(c?.application||'')}</textarea></div>
+ <div class="field full"><label>Detalhamento da descrição do Argo</label><textarea name="detail" rows="3" maxlength="800">${esc(c?.detail||'')}</textarea></div>${footer()}</form>`,f=>{
+  const g=k=>f[k].value.trim(),code=g('code').toUpperCase(),lr=g('limit'),limit=lr?parseAmt(lr):null;
+  if(!g('group')||!g('name')||!code)return toast('Preencha grupo, nome e código Harvest.');if(lr&&!limit)return toast('Limite inválido (ex.: 45,00).');
+  if(db.categories.some(z=>z.id!==c?.id&&z.code.toUpperCase()===code))return toast('Já existe uma categoria com esse código.');
+  let mode=f.mode.value;if(!limit)mode='none';else if(mode==='none')mode='hard';
+  const v={id:c?.id||uid(),code,argoCode:g('argoCode').toUpperCase(),group:g('group'),bi:g('bi'),name:g('name'),argoType:g('argoType'),limit,mode,rule:RULES[f.rule.value]?f.rule.value:'none',template:g('template')||GEN_TPL,application:g('application'),detail:g('detail')};
+  if(c)Object.assign(c,v);else db.categories.push(v);if(!persist())return;closeModal(true);render();toast('Categoria salva ✓')});
+ const fm=$('#modalBody form'),pv=()=>{const g=k=>fm[k].value.trim();$('#tplPrev').textContent='Exemplo: '+argoDesc({date:TODAY(),city:'Santa Maria/RS',qty:3,people:2,plate:'ABC1D23',meal:'Jantar',beneficiary:db.profile.name||'Nome do Profissional',note:'detalhamento',amount:4500},{name:g('name'),argoCode:g('argoCode').toUpperCase(),code:g('code'),rule:fm.rule.value,template:g('template')||GEN_TPL})};fm.addEventListener('input',pv);fm.addEventListener('change',pv);pv()}
+
+/* ---------- perfil / parâmetros ---------- */
+function profileForm(first){const p=db.profile;modalLocked=!!first;
+ openModal(first?'Bem-vindo ao Pedro · Harvest 🌾':'Editar perfil',`<form class="formgrid">${first?'<p class="full help" style="margin:0">Este aplicativo é pessoal: seus dados ficam só neste aparelho. Informe seu nome para personalizar o Pedro.</p>':''}
+ <div class="field full"><label>Seu nome completo</label><input name="name" required maxlength="80" autofocus value="${esc(p.name)}" placeholder="Ex.: Jorge Bonfante"></div>
+ <div class="field"><label>Função no projeto</label><select name="role">${ROLES.map(r=>`<option ${p.role===r?'selected':''}>${r}</option>`).join('')}</select></div>
+ <div class="field"><label>Cidade de origem/contratação</label><input name="homeCity" maxlength="80" value="${esc(p.homeCity)}" placeholder="Ex.: São Paulo/SP"></div>
+ ${first?`<div class="field full"><label class="chk"><input type="checkbox" name="hasAdv" checked> Já recebi um adiantamento</label></div><div class="field"><label>Valor recebido</label><input name="advAmount" inputmode="decimal" value="${fmtAmt(db.settings.defaultAdvance)}"></div><div class="field"><label>Data</label><input type="date" name="advDate" value="${TODAY()}"></div>`:''}
+ ${footer(first?'Começar 🚀':'Salvar')}</form>`,f=>{const name=f.name.value.trim();if(name.length<2)return toast('Informe seu nome.');
+  const old=db.profile.name;db.profile={name,role:ROLES.includes(f.role.value)?f.role.value:'Outro',homeCity:f.homeCity.value.trim()};
+  if(old&&old!==name)db.expenses.forEach(e=>{if(norm(e.beneficiary)===norm(old))e.beneficiary=name});
+  if(first&&f.hasAdv.checked){const a=parseAmt(f.advAmount.value);if(!a||!isDate(f.advDate.value))return toast('Confira o valor e a data do adiantamento.');db.advances.push({id:uid(),type:'recebido',amount:a,date:f.advDate.value,note:'Adiantamento inicial',createdAt:new Date().toISOString()})}
+  if(!persist())return;closeModal(true);navigate(page);toast(first?`Tudo pronto, ${name.split(' ')[0]}! 🌾`:'Perfil atualizado ✓')},first)}
+function paramsForm(){const s=db.settings;openModal('Editar parâmetros',`<form class="formgrid"><div class="field"><label>Adiantamento padrão (R$)</label><input name="adv" inputmode="decimal" value="${fmtAmt(s.defaultAdvance)}"></div><div class="field"><label>Alerta para novo adiantamento (% consumido)</label><input name="pct" type="number" min="10" max="100" step="1" value="${s.alertPct}"></div>${footer()}</form>`,f=>{const a=parseAmt(f.adv.value),p=parseInt(f.pct.value,10);if(!a||!(p>=10&&p<=100))return toast('Confira os valores.');s.defaultAdvance=a;s.alertPct=p;if(!persist())return;closeModal(true);render();toast('Parâmetros salvos ✓')})}
+
+/* ---------- exportação / backup ---------- */
+function csvCell(v){let s=String(v??'');if(/^[\s]*[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"'}
+function download(name,content,type){const a=document.createElement('a'),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
+function exportCsv(){const l=page==='expenses'?filtered():[...db.expenses].sort(byDate);if(!l.length)return toast('Não há despesas para exportar.');
+ const H=['Data','Cidade','Beneficiário','Categoria','Tipo Despesa PMO','Despesa BI','Tipo Argo','Código Harvest','Código descrição Argo','Quantidade','Refeição','Valor (R$)','Lançada no Argo','Status','Nº prestação','Data prestação','Descrição sugerida Argo','Detalhamento'];
+ const rows=l.map(e=>{const c=cat(e.categoryId)||{};return[dateFmt(e.date),e.city,e.beneficiary,c.group,c.name,c.bi,c.argoType,c.code,c.argoCode,qtyRule(c)?e.qty:'',c.rule==='meal'?e.meal:'',fmtAmt(e.amount),e.argo?'Sim':'Não',e.status==='prestada'?'Prestada':'A prestar',e.reportId,dateFmt(e.reportDate),argoDesc(e),e.note]});
+ download(`pedro_harvest_${norm(db.profile.name).replace(/[^a-z0-9]+/g,'_')||'despesas'}_${TODAY()}.csv`,'\ufeff'+[H,...rows].map(r=>r.map(csvCell).join(';')).join('\r\n'),'text/csv;charset=utf-8');toast(`CSV exportado (${l.length} despesas).`)}
+function validImport(v){if(!okShape(v))return false;const ids=new Set();for(const c of v.categories){if(!c||typeof c.id!=='string'||typeof c.name!=='string'||typeof c.code!=='string'||ids.has(c.id))return false;ids.add(c.id)}
+ for(const e of v.expenses)if(!e||typeof e.id!=='string'||!isDate(e.date)||!Number.isSafeInteger(e.amount)||e.amount<=0)return false;
+ for(const a of v.advances)if(!a||typeof a.id!=='string'||!isDate(a.date)||!Number.isSafeInteger(a.amount)||a.amount<=0)return false;return true}
+
+/* ---------- ações ---------- */
+function copyText(t,msg){const done=()=>toast(msg||('📋 Copiado: '+t),5000);if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(done).catch(()=>prompt('Copie a descrição:',t));else prompt('Copie a descrição:',t)}
+document.addEventListener('click',e=>{
+ const nb=e.target.closest('[data-page]');if(nb){navigate(nb.dataset.page);return}
+ const g=e.target.closest('[data-goto]');if(g){e.preventDefault();if(g.dataset.status)F.status=g.dataset.status;navigate(g.dataset.goto);return}
+ const af=e.target.closest('[data-af]');if(af){AF=af.dataset.af;renderArgo();return}
+ const fs=e.target.closest('[data-fst]');if(fs){F.status=fs.dataset.fst;renderExpenses();return}
+ const ch=e.target.closest('[data-chips] button');if(ch){const w=ch.parentNode,inp=w.closest('form').querySelector(`input[name="${w.dataset.chips}"]`);w.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===ch));inp.value=ch.dataset.v;inp.dispatchEvent(new Event('change',{bubbles:true}));return}
+ const q=e.target.closest('[data-qd]');if(q){const d=new Date();d.setDate(d.getDate()+(+q.dataset.qd));const i=q.closest('.field').querySelector('input[type=date]');i.value=iso(d);i.dispatchEvent(new Event('change',{bubbles:true}));return}
+ const b=e.target.closest('[data-act]');if(!b)return;const id=b.dataset.id,a=b.dataset.act;
+ switch(a){
+  case 'cancel':closeModal();break;
+  case 'newExp':expenseForm();break;case 'editExp':expenseForm(id);break;
+  case 'delExp':{const x=db.expenses.find(z=>z.id===id);if(x&&confirm(`Excluir a despesa de ${money(x.amount)} (${cat(x.categoryId)?.name||''}, ${dateFmt(x.date)})?`)){db.expenses=db.expenses.filter(z=>z.id!==id);persist();render();toast('Despesa excluída.')}break}
+  case 'toggle':{const x=db.expenses.find(z=>z.id===id);if(!x)break;if(x.status==='prestada'){x.status='pendente';x.reportId='';x.reportDate=''}else{x.status='prestada';x.reportDate=TODAY()}persist();render();toast(x.status==='prestada'?'Marcada como prestada no Argo ✓':'Voltou para “a prestar”.');break}
+  case 'copy':{const x=db.expenses.find(z=>z.id===id);if(x)copyText(argoDesc(x));break}
+  case 'copyTxt':copyText(b.dataset.txt);break;
+  case 'copyAll':{const l=[...db.expenses].sort((a,b)=>a.date.localeCompare(b.date)).filter(e=>AF==='all'||(AF==='pend'?!e.argo:!!e.argo));if(l.length)copyText(l.map(argoDesc).join('\n'),l.length+' descrições copiadas ✓');break}
+  case 'argoMark':{const x=db.expenses.find(z=>z.id===id);if(!x)break;x.argo=!x.argo;persist();render();toast(x.argo?'Marcada como lançada no Argo ✓':'Voltou para “a lançar”.');break}
+  case 'batch':batchForm();break;
+  case 'newAdv':advanceForm();break;case 'editAdv':advanceForm(id);break;
+  case 'delAdv':{const x=db.advances.find(z=>z.id===id);if(x&&confirm(`Excluir a movimentação de ${money(x.amount)} de ${dateFmt(x.date)}?`)){db.advances=db.advances.filter(z=>z.id!==id);persist();render()}break}
+  case 'editOn':if(confirm('Ativar o modo edição do glossário?\n\nAlterar códigos, limites e regras muda o que o Pedro valida nos próximos lançamentos.')){editMode=true;renderGlossary()}break;
+  case 'editOff':editMode=false;renderGlossary();toast('Edição concluída 🔒');break;
+  case 'newCat':categoryForm();break;case 'editCat':categoryForm(id);break;
+  case 'delCat':{const n=db.expenses.filter(z=>z.categoryId===id).length;if(n)return toast(`Categoria usada em ${n} despesa(s): altere essas despesas antes de excluir.`);if(confirm('Excluir esta categoria?')){db.categories=db.categories.filter(z=>z.id!==id);persist();renderGlossary()}break}
+  case 'resetCats':if(confirm('Restaurar as categorias padrão do glossário HV26?\n\nCategorias padrão editadas voltam ao original; categorias criadas por você são mantidas.')){const extra=db.categories.filter(c=>!DEFAULT_CATS.some(d=>d.id===c.id));db.categories=[...DEFAULT_CATS.map(c=>({...c})),...extra];persist();renderGlossary();toast('Glossário restaurado ✓')}break;
+  case 'editProfile':profileForm(false);break;case 'editParams':paramsForm();break;
+  case 'csv':exportCsv();break;
+  case 'tpl':downloadTemplate();break;
+  case 'upSheet':$('#importSheet').click();break;
+  case 'backup':download(`pedro_harvest_backup_${TODAY()}.json`,JSON.stringify(db,null,2),'application/json');toast('Backup baixado. Guarde em local seguro.');break;
+  case 'restore':$('#importJson').click();break;
+  case 'wipe':if(confirm('Apagar TODOS os dados deste aparelho? Faça um backup antes.')&&confirm('Confirma a exclusão definitiva?')){db=fresh();persist();editMode=false;navigate('home');profileForm(true)}break;
+ }});
+document.addEventListener('change',e=>{if(e.target.id!=='importSheet')return;const f=e.target.files[0];e.target.value='';if(f)importSheet(f)});
+document.addEventListener('change',async e=>{if(e.target.id!=='importJson')return;const file=e.target.files[0];e.target.value='';if(!file)return;
+ try{if(file.size>20*1024*1024)throw Error('arquivo acima de 20 MB');const v=JSON.parse(await file.text());if(!validImport(v))throw Error('estrutura de backup inválida');
+  if(!confirm(`Substituir os dados deste aparelho pelo backup de ${v.profile.name||'—'} (${v.expenses.length} despesas, ${v.advances.length} adiantamentos)?`))return;
+  const old=db;db=v;if(!persist()){db=old;return}navigate('home');toast('Backup importado ✓')}catch(err){toast('Falha na importação: '+err.message)}});
+$('#closeModal').onclick=()=>closeModal();$('#modalBack').addEventListener('click',e=>{if(e.target===$('#modalBack'))closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.altKey&&(e.key==='n'||e.key==='N')&&!$('#modalBack').classList.contains('show')){e.preventDefault();expenseForm()}});
+function applyTheme(){document.body.classList.toggle('dark',PREF.theme==='dark');$$('.themeLbl').forEach(l=>l.textContent=PREF.theme==='dark'?'☀️ Tema claro':'🌙 Tema escuro')}
+$$('.themeSw').forEach(b=>b.onclick=()=>{PREF.theme=PREF.theme==='dark'?'light':'dark';savePref();applyTheme()});applyTheme();
+navigate('home');
+if(!db.profile.name)profileForm(true);
+else if(new URLSearchParams(location.search).get('nova')==='1'){history.replaceState(null,'',location.pathname);setTimeout(()=>expenseForm(),200)}
+window.__pedro={templateXlsx,readXlsx,prepareImport,check,parseAmt,natHoliday,totals,get db(){return db}};
+})();
+
+</script>
+<script>
+(()=>{'use strict';
+let dp=null;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const inst=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+let msg='';const say=m=>{msg=m;const s=document.getElementById('pwaStatus');if(s)s.textContent=m};
+const btns=()=>['installBtn','installBtn2'].map(i=>document.getElementById(i)).filter(Boolean);
+const showBtns=()=>btns().forEach(b=>b.hidden=!(dp&&!inst()));
+window.addEventListener('pedro-settings',()=>{say(msg||'Verificando…');showBtns()});
+if(inst())say('📲 Pedro instalado como aplicativo. Funciona offline; seus dados ficam neste aparelho.');
+else if(location.protocol==='file:')say('Aberto como arquivo local: publique em HTTPS para instalar como aplicativo.');
+else if(ios)say('No iPhone/iPad: abra no Safari, toque em Compartilhar ⬆ e em “Adicionar à Tela de Início”.');
+else say('Abra no Chrome/Edge e use “Instalar Pedro” ou o menu do navegador.');
+if('serviceWorker' in navigator&&window.isSecureContext&&location.protocol!=='file:'){
+ addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(r=>{
+  r.addEventListener('updatefound',()=>{const w=r.installing;w&&w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)say('Nova versão disponível: feche e abra o Pedro para atualizar.')})});
+ }).catch(()=>say('Não foi possível ativar o modo offline. Confira se o sw.js foi publicado junto com o index.html.')));
+}
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;showBtns()});
+document.addEventListener('click',async e=>{const b=e.target.closest('#installBtn,#installBtn2');if(!b||!dp)return;const p=dp;dp=null;showBtns();try{await p.prompt();await p.userChoice}catch(_){}});
+addEventListener('appinstalled',()=>{dp=null;showBtns();say('📲 Pedro instalado! Procure o ícone na tela inicial ou no menu Iniciar.')});
+})();
+
+</script>
+</body>
+</html>
